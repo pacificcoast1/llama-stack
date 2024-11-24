@@ -10,6 +10,11 @@ huggingface-cli login
 
 export $(cat .env | xargs)
 
+Env vars:
+LLAMA_STACK_PORT=5001
+INFERENCE_MODEL=meta-llama/Llama-3.2-3B-Instruct
+FIREWORKS_API_KEY=<api-key>
+
 # vLLM server
 export INFERENCE_PORT=8000
 export INFERENCE_MODEL=meta-llama/Llama-3.2-3B-Instruct
@@ -22,11 +27,24 @@ sudo docker run --gpus all \
     vllm/vllm-openai:latest \
     --model $INFERENCE_MODEL
 
+# Remote vLLM
+export $(cat .env | xargs)
+sudo docker run \
+  -it \
+  --net=host \
+  -p $LLAMA_STACK_PORT:$LLAMA_STACK_PORT \
+  -v ./run.yaml:/root/my-run.yaml \
+  llamastack/distribution-remote-vllm \
+  --yaml-config /root/my-run.yaml \
+  --port $LLAMA_STACK_PORT \
+  --env INFERENCE_MODEL=$INFERENCE_MODEL \
+  --env VLLM_URL=http://localhost:$INFERENCE_PORT/v1
+
 llama model download --model-id meta-llama/Llama-3.2-3B-Instruct
 # Add in signed URL from email
 
 # Meta reference gpu server
-export LLAMA_STACK_PORT=5001
+export $(cat .env | xargs)
 sudo docker run \
   -it \
   -v ~/.llama:/root/.llama \

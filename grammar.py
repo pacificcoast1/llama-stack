@@ -1,7 +1,7 @@
 import os
 from llama_stack_client import LlamaStackClient
 
-client = LlamaStackClient(base_url=f"http://localhost:5000")
+client = LlamaStackClient(base_url=f"http://localhost:5001")
 
 models = client.models.list()
 print(models)
