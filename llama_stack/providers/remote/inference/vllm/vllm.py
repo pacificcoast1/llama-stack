@@ -100,6 +100,7 @@ class VLLMInferenceAdapter(Inference, ModelsProtocolPrivate):
             tool_prompt_format=tool_prompt_format,
             stream=stream,
             logprobs=logprobs,
+            response_format=response_format,
         )
         if stream:
             return self._stream_chat_completion(request, self.client)
@@ -170,6 +171,10 @@ class VLLMInferenceAdapter(Inference, ModelsProtocolPrivate):
                     self.register_helper.get_llama_model(request.model),
                     self.formatter,
                 )
+
+            log.info("Setting response_format: %s", request.response_format)
+            if request.response_format:
+                input_dict["response_format"] = request.response_format
         else:
             assert (
                 not media_present

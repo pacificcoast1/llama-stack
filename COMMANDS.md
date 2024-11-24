@@ -83,7 +83,6 @@ conda activate llamastack-remote-vllm
 llama stack run run.yaml \
   --port 5001 \
   --env INFERENCE_MODEL=meta-llama/Llama-3.2-3B-Instruct
-  
 
 python json_schema.py
 ```
