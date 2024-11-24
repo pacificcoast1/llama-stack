@@ -41,7 +41,7 @@ sudo docker run \
   --net=host \
   -p $LLAMA_STACK_PORT:$LLAMA_STACK_PORT \
   -v ./run.yaml:/root/my-run.yaml \
-  llamastack/distribution-remote-vllm \
+  llamastack/distribution-remote-vllm:0.0.54 \
   --yaml-config /root/my-run.yaml \
   --port $LLAMA_STACK_PORT \
   --env INFERENCE_MODEL=$INFERENCE_MODEL \
@@ -81,7 +81,7 @@ llama stack build --template remote-vllm --image-type conda
 # Run the stack
 export $(cat .env | xargs)
 conda activate llamastack-remote-vllm 
-llama stack run distributions/remote-vllm/run.yaml \
+llama stack run run.yaml \
   --port 5001 \
   --env INFERENCE_MODEL=meta-llama/Llama-3.2-3B-Instruct
 ```
