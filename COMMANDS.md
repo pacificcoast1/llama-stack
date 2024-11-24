@@ -1,10 +1,16 @@
 ```bash
 
+# Using Conda now
 python -m venv .venv
+source $STORAGE_DIR/llama-stack/.venv/bin/activate
+
+
+conda create --name llama-stack python=3.10
+
+conda activate llama-stack
+
 
 pip install -e .
-
-source $STORAGE_DIR/llama-stack/.venv/bin/activate
 
 huggingface-cli login
 
@@ -66,4 +72,11 @@ sudo docker run \
 
 
 llama-stack-client --endpoint http://localhost:$LLAMA_STACK_PORT   inference chat-completion   --message "hello, what model are you?"
+
+
+
+llama stack build --template meta-reference-gpu --image-type conda
+llama stack run distributions/meta-reference-gpu/run.yaml \
+  --port 5001 \
+  --env INFERENCE_MODEL=meta-llama/Llama-3.2-3B-Instruct
 ```
