@@ -79,8 +79,7 @@ llama-stack-client --endpoint http://localhost:$LLAMA_STACK_PORT   inference cha
 # Install the stack
 llama stack build --template remote-vllm --image-type conda
 # Run the stack
-export $(cat .env | xargs)
-conda activate llamastack-remote-vllm 
+conda activate llamastack-remote-vllm
 llama stack run run.yaml \
   --port 5001 \
   --env INFERENCE_MODEL=meta-llama/Llama-3.2-3B-Instruct
