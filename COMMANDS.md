@@ -24,9 +24,7 @@ INFERENCE_PORT=8000
 VLLM_URL=http://localhost:8000
 
 # vLLM server
-export INFERENCE_PORT=8000
-export INFERENCE_MODEL=meta-llama/Llama-3.2-3B-Instruct
-export CUDA_VISIBLE_DEVICES=0
+export $(cat .env | xargs)
 sudo docker run --gpus all \
     -v $STORAGE_DIR/.cache/huggingface:/root/.cache/huggingface \
     --env "HUGGING_FACE_HUB_TOKEN=$(cat ~/.cache/huggingface/token)" \
