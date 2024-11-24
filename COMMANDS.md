@@ -17,9 +17,11 @@ huggingface-cli login
 export $(cat .env | xargs)
 
 Env vars:
+OLLAMA_INFERENCE_MODEL="llama3.2:3b-instruct-fp16"
 LLAMA_STACK_PORT=5001
 INFERENCE_MODEL=meta-llama/Llama-3.2-3B-Instruct
-FIREWORKS_API_KEY=<api-key>
+INFERENCE_PORT=8000
+VLLM_URL=http://localhost:8000
 
 # vLLM server
 export INFERENCE_PORT=8000
