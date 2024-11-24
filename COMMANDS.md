@@ -75,8 +75,8 @@ llama-stack-client --endpoint http://localhost:$LLAMA_STACK_PORT   inference cha
 
 
 
-llama stack build --template meta-reference-gpu --image-type conda
-llama stack run distributions/meta-reference-gpu/run.yaml \
+llama stack build --template remote-vllm --image-type conda
+llama stack run distributions/remote-vllm/run.yaml \
   --port 5001 \
   --env INFERENCE_MODEL=meta-llama/Llama-3.2-3B-Instruct
 ```
