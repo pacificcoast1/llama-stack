@@ -63,5 +63,7 @@ sudo docker run \
     --env INFERENCE_MODEL=meta-llama/Llama-3.2-3B-Instruct \
     --env FIREWORKS_API_KEY=$FIREWORKS_API_KEY
 
+
+
 llama-stack-client --endpoint http://localhost:$LLAMA_STACK_PORT   inference chat-completion   --message "hello, what model are you?"
 ```
