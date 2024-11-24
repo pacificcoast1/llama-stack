@@ -30,7 +30,8 @@ sudo docker run --gpus all \
     --env "HUGGING_FACE_HUB_TOKEN=$(cat ~/.cache/huggingface/token)" \
     -p 8000:$INFERENCE_PORT \
     --ipc=host \
-    vllm/vllm-openai:latest \
+    --net=host \
+    vllm/vllm-openai:v0.6.3.post1 \
     --model $INFERENCE_MODEL
 
 # Remote vLLM
@@ -75,7 +76,11 @@ llama-stack-client --endpoint http://localhost:$LLAMA_STACK_PORT   inference cha
 
 
 
+# Install the stack
 llama stack build --template remote-vllm --image-type conda
+# Run the stack
+export $(cat .env | xargs)
+conda activate llamastack-remote-vllm 
 llama stack run distributions/remote-vllm/run.yaml \
   --port 5001 \
   --env INFERENCE_MODEL=meta-llama/Llama-3.2-3B-Instruct
