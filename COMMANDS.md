@@ -84,5 +84,9 @@ llama stack run run.yaml \
   --port 5001 \
   --env INFERENCE_MODEL=meta-llama/Llama-3.2-3B-Instruct
 
+llama stack build --template remote-vllm --image-type conda && llama stack run run.yaml \
+  --port 5001 \
+  --env INFERENCE_MODEL=meta-llama/Llama-3.2-3B-Instruct
+
 python json_schema.py
 ```
