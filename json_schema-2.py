@@ -24,6 +24,7 @@ response = client.inference.chat_completion(
                   }
               }
           },
+          "strict": True
       }
     }
 )
