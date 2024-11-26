@@ -88,6 +88,5 @@ python json_schema.py
 
 pip install pytest pytest_asyncio aiohttp ollama fairscale transformers torch accelerate zmq lm-format-enforcer blobfile torchvision fireworks-ai
 
-# Don't work
 pytest -v -s llama_stack/providers/tests/inference/test_text_inference.py -k llama_3b-vllm_remote
 ```
