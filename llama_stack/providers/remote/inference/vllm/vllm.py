@@ -186,10 +186,15 @@ class VLLMInferenceAdapter(Inference, ModelsProtocolPrivate):
             )
         
         log.info(f"Mapping response_format={request.response_format}")
-        if request.response_format:
-            input_dict["extra_body"] = {
-                "guided_json": request.response_format.json_schema
-            }
+        if fmt := request.response_format:
+            if fmt.type == ResponseFormatType.json_schema.value:
+                input_dict["extra_body"] = {
+                    "guided_json": request.response_format.json_schema
+                }
+            elif fmt.type == ResponseFormatType.grammar.value:
+                raise NotImplementedError("Grammar response format not supported yet")
+            else:
+                raise ValueError(f"Unknown response format {fmt.type}")
 
         return {
             "model": request.model,
