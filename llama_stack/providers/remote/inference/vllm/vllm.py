@@ -112,6 +112,7 @@ class VLLMInferenceAdapter(Inference, ModelsProtocolPrivate):
     ) -> ChatCompletionResponse:
         params = await self._get_params(request)
         if "messages" in params:
+            log.info("params: %s", params)
             r = client.chat.completions.create(**params)
         else:
             r = client.completions.create(**params)
@@ -126,6 +127,7 @@ class VLLMInferenceAdapter(Inference, ModelsProtocolPrivate):
         #  generator so this wrapper is not necessary?
         async def _to_async_generator():
             if "messages" in params:
+                log.info("params: %s", params)
                 s = client.chat.completions.create(**params)
             else:
                 s = client.completions.create(**params)
