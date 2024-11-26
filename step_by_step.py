@@ -10,9 +10,6 @@ class Explanation(BaseModel):
 class StepByStepCompletionResponse(BaseModel):
     steps: list[Explanation]
 
-models = client.models.list()
-print(models)
-
 response = client.inference.chat_completion(
     model_id=os.environ["INFERENCE_MODEL"],
     messages=[
@@ -21,7 +18,7 @@ response = client.inference.chat_completion(
     ],
     response_format={
       "type": "json_schema",
-      "json_schema": StepByStepCompletionResponse.model_schema_json()
+      "json_schema": StepByStepCompletionResponse.model_json_schema()
     }
 )
 print(response.completion_message.content)

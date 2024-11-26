@@ -184,8 +184,7 @@ class VLLMInferenceAdapter(Inference, ModelsProtocolPrivate):
                 self.register_helper.get_llama_model(request.model),
                 self.formatter,
             )
-        
-        log.info(f"Mapping response_format={request.response_format}")
+
         if fmt := request.response_format:
             if fmt.type == ResponseFormatType.json_schema.value:
                 input_dict["extra_body"] = {
