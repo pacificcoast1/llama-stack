@@ -174,13 +174,7 @@ class VLLMInferenceAdapter(Inference, ModelsProtocolPrivate):
                     self.formatter,
                 )
 
-            log.info(f"Mapping response_format={request.response_format}")
-            if request.response_format:
-                input_dict["response_format"] = request.response_format
-                # vllm does not support response_format for regular completions
-                # So we need to use the chat completion
-                input_dict.pop("prompt")
-                input_dict["messages"] = request.messages
+
         else:
             assert (
                 not media_present
@@ -190,6 +184,12 @@ class VLLMInferenceAdapter(Inference, ModelsProtocolPrivate):
                 self.register_helper.get_llama_model(request.model),
                 self.formatter,
             )
+        
+        log.info(f"Mapping response_format={request.response_format}")
+        if request.response_format:
+            input_dict["extra_body"] = {
+                "guided_json": request.response_format.json_schema
+            }
 
         return {
             "model": request.model,
