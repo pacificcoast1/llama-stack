@@ -23,6 +23,7 @@ export INFERENCE_MODEL=meta-llama/Llama-3.2-3B-Instruct
 export INFERENCE_PORT=8000
 export VLLM_URL=http://localhost:8000/v1
 export SQLITE_STORE_DIR=$LLAMA_STACK_CONFIG_DIR/distributions/meta-reference-gpu
+export SAFETY_MODEL=meta-llama/Llama-Guard-3-1B
 
 # vLLM server
 export $(cat .env | xargs)
@@ -92,4 +93,8 @@ llama stack build --template meta-reference-gpu --image-type conda && llama stac
 llama stack build --template meta-reference-gpu --image-type conda && llama stack run distributions/meta-reference-gpu/run-with-safety.yaml \
   --port 5001 \
   --env INFERENCE_MODEL=meta-llama/Llama-3.2-3B-Instruct
+
+
+llama download --model-id Llama3.2-3B-Instruct
+llama download --model-id Llama-Guard-3-1B
 ```
