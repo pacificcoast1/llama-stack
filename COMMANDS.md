@@ -8,8 +8,7 @@ source ~/miniconda3/bin/activate
 conda create --name llama-stack --prefix ./envs python=3.10 
 
 source ~/miniconda3/bin/activate
-conda activate envs
-
+conda activate ./envs
 
 pip install -e .
 
@@ -17,12 +16,13 @@ huggingface-cli login
 
 export $(cat .env | xargs)
 
-Env vars:
-OLLAMA_INFERENCE_MODEL="llama3.2:3b-instruct-fp16"
-LLAMA_STACK_PORT=5001
-INFERENCE_MODEL=meta-llama/Llama-3.2-3B-Instruct
-INFERENCE_PORT=8000
-VLLM_URL=http://localhost:8000
+# Env vars:
+export OLLAMA_INFERENCE_MODEL="llama3.2:3b-instruct-fp16"
+export LLAMA_STACK_PORT=5001
+export INFERENCE_MODEL=meta-llama/Llama-3.2-3B-Instruct
+export INFERENCE_PORT=8000
+export VLLM_URL=http://localhost:8000/v1
+export SQLITE_STORE_DIR=$LLAMA_STACK_CONFIG_DIR/distributions/meta-reference-gpu
 
 # vLLM server
 export $(cat .env | xargs)
@@ -85,13 +85,11 @@ llama stack run run.yaml \
   --port 5001 \
   --env INFERENCE_MODEL=meta-llama/Llama-3.2-3B-Instruct
 
-llama stack build --template remote-vllm --image-type conda && llama stack run run.yaml \
-  --port 5001 \
-  --env INFERENCE_MODEL=meta-llama/Llama-3.2-3B-Instruct
-
 llama stack build --template meta-reference-gpu --image-type conda && llama stack run distributions/meta-reference-gpu/run.yaml \
   --port 5001 \
   --env INFERENCE_MODEL=meta-llama/Llama-3.2-3B-Instruct
 
-python json_schema.py
+llama stack build --template meta-reference-gpu --image-type conda && llama stack run distributions/meta-reference-gpu/run-with-safety.yaml \
+  --port 5001 \
+  --env INFERENCE_MODEL=meta-llama/Llama-3.2-3B-Instruct
 ```
