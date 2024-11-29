@@ -92,9 +92,9 @@ llama stack build --template meta-reference-gpu --image-type conda && llama stac
 
 llama stack build --template meta-reference-gpu --image-type conda && llama stack run distributions/meta-reference-gpu/run-with-safety.yaml \
   --port 5001 \
-  --env INFERENCE_MODEL=meta-llama/Llama-3.2-3B-Instruct
+  --env INFERENCE_MODEL=meta-llama/Llama-3.2-11B-Vision-Instruct
 
-
+llama download --model-id Llama3.2-11B-Vision-Instruct
 llama download --model-id Llama3.2-3B-Instruct
 llama download --model-id Llama-Guard-3-1B
 ```
