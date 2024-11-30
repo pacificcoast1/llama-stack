@@ -1,5 +1,5 @@
 # Stored in faiss_store.db
-# faiss_index_id => faiss_indexes:v1::test_bank_2
+# faiss_index_id => faiss_index:v1::test_bank_2
 faiss_index = {
     "id_by_index": {
         "0": "llama_3.1.md",

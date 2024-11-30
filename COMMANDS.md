@@ -5,7 +5,7 @@ python -m venv .venv
 source $STORAGE_DIR/llama-stack/.venv/bin/activate
 
 source ~/miniconda3/bin/activate
-conda create --name llama-stack --prefix ./envs python=3.10 
+conda create --prefix ./envs python=3.10 
 
 source ~/miniconda3/bin/activate
 conda activate ./envs
@@ -127,4 +127,14 @@ select * from kvstore where key = 'session:f4920b89-1035-4432-92ab-3d800878e28d:
 select * from kvstore where key = 'session:f4920b89-1035-4432-92ab-3d800878e28d:7b19e203-53cc-4295-b6cf-f0c400611ed1:e38da75e-70fb-4895-b522-b25373f3e8d5';
 # Agents
 select * from kvstore where key = 'agent:f4920b89-1035-4432-92ab-3d800878e28d';
+
+
+conda create --prefix ./faiss-env python=3.10
+
+
+source ~/miniconda3/bin/activate
+conda activate ./faiss-env
+
+pip install "numpy<2.0" faiss-gpu aiosqlite
+python inspect_faiss.py
 ```
