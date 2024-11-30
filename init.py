@@ -36,7 +36,7 @@ documents = [
     Document(
         document_id=f"num-1",
         content={
-          "uri": "https://github.com/py-pdf/sample-files/blob/86217754b5056f02ed51d66ebd42d699df700bc1/011-google-doc-document/google-doc-document.pdf?raw=true",
+          "uri": "https://raw.githubusercontent.com/py-pdf/sample-files/86217754b5056f02ed51d66ebd42d699df700bc1/011-google-doc-document/google-doc-document.pdf",
         },
         mime_type="application/pdf",
         metadata={},
