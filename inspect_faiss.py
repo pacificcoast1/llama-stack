@@ -5,6 +5,9 @@ import json
 import io
 import base64
 import numpy as np
+from sentence_transformers import SentenceTransformer
+
+model = SentenceTransformer("all-MiniLM-L6-v2")
 
 def query_sqlite(db_path, query):
     conn = sqlite3.connect(db_path)
@@ -27,9 +30,9 @@ value = json.loads(results[0][1])
 
 bytes = io.BytesIO(base64.b64decode(value["faiss_index"]))
 index = faiss.deserialize_index(np.loadtxt(bytes, dtype=np.uint8))
-# Create a random test vector with same dimension as index
 d = index.d  # Get dimension of the index
-test_vector = np.random.random(d).reshape(1, -1).astype(np.float32)
+test_vector = model.encode("Llama 3.2 3B Instruct").reshape(1, -1)
+print(test_vector)
 
 # Perform search with k=5 nearest neighbors
 k = 5
@@ -47,4 +50,11 @@ for idx in indices[0]:
         doc_id = id_by_index[str(idx)]
         print(f"Index {idx} -> Document: {doc_id}")
 
-# print(index)
+# Print document chunks
+chunk_by_index = value["chunk_by_index"]
+print("\nDocument chunks:")
+for idx in indices[0]:
+    if idx >= 0:  # Valid index
+        chunk = json.loads(chunk_by_index[str(idx)])
+        print(f"\nIndex {idx}:")
+        print(f"Content: {chunk['content']}")

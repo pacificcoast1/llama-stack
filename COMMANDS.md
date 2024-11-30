@@ -135,6 +135,6 @@ conda create --prefix ./faiss-env python=3.10
 source ~/miniconda3/bin/activate
 conda activate ./faiss-env
 
-pip install "numpy<2.0" faiss-gpu aiosqlite
+pip install "numpy<2.0" faiss-gpu aiosqlite sentence-transformers
 python inspect_faiss.py
 ```
