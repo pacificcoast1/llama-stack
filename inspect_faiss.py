@@ -4,6 +4,7 @@ import os
 import json
 import io
 import base64
+import numpy as np
 
 def query_sqlite(db_path, query):
     conn = sqlite3.connect(db_path)
@@ -25,5 +26,25 @@ print(results[0][0])
 value = json.loads(results[0][1])
 
 bytes = io.BytesIO(base64.b64decode(value["faiss_index"]))
+index = faiss.deserialize_index(np.loadtxt(bytes, dtype=np.uint8))
+# Create a random test vector with same dimension as index
+d = index.d  # Get dimension of the index
+test_vector = np.random.random(d).reshape(1, -1).astype(np.float32)
 
-index = faiss.IndexFlatL2(384)
+# Perform search with k=5 nearest neighbors
+k = 5
+distances, indices = index.search(test_vector, k)
+
+print("\nSearch results:")
+print(f"Indices of {k} nearest neighbors: {indices[0]}")
+print(f"Distances to {k} nearest neighbors: {distances[0]}")
+
+# Print corresponding document IDs
+id_by_index = value["id_by_index"] 
+print("\nCorresponding document IDs:")
+for idx in indices[0]:
+    if idx >= 0:  # Valid index
+        doc_id = id_by_index[str(idx)]
+        print(f"Index {idx} -> Document: {doc_id}")
+
+# print(index)
