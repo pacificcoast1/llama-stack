@@ -144,9 +144,9 @@ python inspect_faiss.py
 
 
 # Install pytest
-pip install pytest pytest-asyncio
+pip install pytest pytest-asyncio pypdf pytest-httpx
 
 # Run tests
+source ~/miniconda3/bin/activate && conda activate llamastack-meta-reference-gpu
 pytest llama_stack/providers/tests/memory/test_vector_store.py -v
-
 ```
