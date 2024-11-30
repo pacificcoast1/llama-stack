@@ -30,9 +30,8 @@ value = json.loads(results[0][1])
 
 bytes = io.BytesIO(base64.b64decode(value["faiss_index"]))
 index = faiss.deserialize_index(np.loadtxt(bytes, dtype=np.uint8))
-d = index.d  # Get dimension of the index
 test_vector = model.encode("Llama 3.2 3B Instruct").reshape(1, -1)
-print(test_vector)
+print(test_vector.shape)
 
 # Perform search with k=5 nearest neighbors
 k = 5
