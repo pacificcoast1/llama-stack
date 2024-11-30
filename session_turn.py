@@ -1,5 +1,5 @@
-turn_id = 'session:f4920b89-1035-4432-92ab-3d800878e28d:7b19e203-53cc-4295-b6cf-f0c400611ed1:e38da75e-70fb-4895-b522-b25373f3e8d5'
-
+# Stored in agents_store.db
+# turn_id => session:f4920b89-1035-4432-92ab-3d800878e28d:7b19e203-53cc-4295-b6cf-f0c400611ed1:e38da75e-70fb-4895-b522-b25373f3e8d5
 format = {
     "turn_id": "e38da75e-70fb-4895-b522-b25373f3e8d5",
     "session_id": "7b19e203-53cc-4295-b6cf-f0c400611ed1",
