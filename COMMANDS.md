@@ -97,4 +97,16 @@ llama stack build --template meta-reference-gpu --image-type conda && llama stac
 llama download --model-id Llama3.2-11B-Vision-Instruct
 llama download --model-id Llama3.2-3B-Instruct
 llama download --model-id Llama-Guard-3-1B
+
+sudo apt install sqlite3
+# Faiss store
+sqlite3 $SQLITE_STORE_DIR/faiss_store.db
+# Faiss store
+.tables
+.schema
+.headers ON
+.mode column
+.output sql.txt
+select key from kvstore;
+select * from kvstore where key = 'memory_banks:v1::test_bank_2';
 ```
