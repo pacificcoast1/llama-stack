@@ -98,10 +98,10 @@ llama download --model-id Llama3.2-11B-Vision-Instruct
 llama download --model-id Llama3.2-3B-Instruct
 llama download --model-id Llama-Guard-3-1B
 
+ls $SQLITE_STORE_DIR
 sudo apt install sqlite3
 # Faiss store
 sqlite3 $SQLITE_STORE_DIR/faiss_store.db
-# Faiss store
 .tables
 .schema
 .headers ON
@@ -109,4 +109,18 @@ sqlite3 $SQLITE_STORE_DIR/faiss_store.db
 .output sql.txt
 select key from kvstore;
 select * from kvstore where key = 'memory_banks:v1::test_bank_2';
+
+# Registry
+sqlite3 $SQLITE_STORE_DIR/registry.db
+select key from kvstore;
+select * from kvstore where key = 'distributions:registry:v2::model:meta-llama/Llama-3.2-11B-Vision-Instruct';
+
+# Agent store
+sqlite3 $SQLITE_STORE_DIR/agents_store.db
+select key from kvstore;
+# Session
+select * from kvstore where key = 'session:f4920b89-1035-4432-92ab-3d800878e28d:7b19e203-53cc-4295-b6cf-f0c400611ed1';
+# 
+.output sql.txt
+select * from kvstore where key = 'session:f4920b89-1035-4432-92ab-3d800878e28d:7b19e203-53cc-4295-b6cf-f0c400611ed1:e38da75e-70fb-4895-b522-b25373f3e8d5';
 ```
