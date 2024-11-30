@@ -1,5 +1,6 @@
 from llama_stack_client import LlamaStackClient
 from llama_stack_client.types.memory_insert_params import Document
+from counter import get_counter
 
 client = LlamaStackClient(
     base_url="http://localhost:5001",
@@ -14,6 +15,7 @@ print("using provider: ", provider)
 
 counter = get_counter()
 bank_id = f"bank_pdf_paper{counter}"
+print("bank_id: ", bank_id)
 client.memory_banks.register(
     memory_bank_id=bank_id,
     params={
@@ -41,10 +43,3 @@ client.memory.insert(
     documents=documents,
 )
 
-def get_counter():
-    with open("counter.txt", "r") as f:
-        counter = int(f.read().strip())
-    counter += 1
-    with open("counter.txt", "w") as f:
-        f.write(str(counter))
-    return counter

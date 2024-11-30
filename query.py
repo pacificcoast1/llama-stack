@@ -1,6 +1,7 @@
 from llama_stack_client import LlamaStackClient
+from counter import last_counter
 
-bank_id = "bank_pdf_paper2"
+bank_id = f"bank_pdf_paper{last_counter()}"
 
 client = LlamaStackClient(
     base_url="http://localhost:5001",
