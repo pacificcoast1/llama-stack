@@ -12,6 +12,8 @@ conda activate ./envs
 
 pip install -e .
 
+pip install httpx==0.27.2
+
 huggingface-cli login
 
 export $(cat .env | xargs)

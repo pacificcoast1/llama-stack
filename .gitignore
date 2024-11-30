@@ -18,6 +18,6 @@ Package.resolved
 .vscode
 _build
 docs/src
-.envs/
+envs/
 faiss-env/
 .envrc
