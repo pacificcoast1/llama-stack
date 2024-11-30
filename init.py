@@ -26,16 +26,21 @@ client.memory_banks.register(
     provider_id=provider.provider_id,
 )
 
-urls = ["https://arxiv.org/pdf/2407.21783"]
-
 documents = [
     Document(
-        document_id=f"num-{i}",
-        content=url,
+        document_id=f"num-0",
+        content="https://arxiv.org/pdf/2407.21783",
         mime_type="application/pdf",
         metadata={},
-    )
-    for i, url in enumerate(urls)
+    ),
+    Document(
+        document_id=f"num-1",
+        content={
+          "uri": "https://github.com/py-pdf/sample-files/blob/86217754b5056f02ed51d66ebd42d699df700bc1/011-google-doc-document/google-doc-document.pdf?raw=true",
+        },
+        mime_type="application/pdf",
+        metadata={},
+    ),
 ]
 
 client.memory.insert(
