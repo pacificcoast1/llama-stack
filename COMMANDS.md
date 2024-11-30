@@ -143,5 +143,10 @@ python inspect_faiss.py
 
 
 
+# Install pytest
+pip install pytest pytest-asyncio
+
+# Run tests
+pytest llama_stack/providers/tests/memory/test_vector_store.py -v
 
 ```
