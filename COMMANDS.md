@@ -109,6 +109,8 @@ sqlite3 $SQLITE_STORE_DIR/faiss_store.db
 .output sql.txt
 select key from kvstore;
 select * from kvstore where key = 'memory_banks:v1::test_bank_2';
+.output sql.txt;
+select * from kvstore where key = 'faiss_index:v1::test_bank_2';
 
 # Registry
 sqlite3 $SQLITE_STORE_DIR/registry.db
