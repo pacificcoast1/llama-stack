@@ -115,6 +115,11 @@ async def content_from_doc(doc: MemoryBankDocument) -> str:
         else:
             async with httpx.AsyncClient() as client:
                 r = await client.get(doc.content)
+            if doc.mime_type == "application/pdf":
+                pdf_bytes = io.BytesIO(r.content)
+                pdf_reader = PdfReader(pdf_bytes)
+                return "\n".join([page.extract_text() for page in pdf_reader.pages])
+            else:
                 return r.text
 
     return interleaved_text_media_as_str(doc.content)
