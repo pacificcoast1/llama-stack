@@ -1,6 +1,11 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# All rights reserved.
+#
+# This source code is licensed under the terms described in the LICENSE file in
+# the root directory of this source tree.
+
 from llama_stack_client import LlamaStackClient
 from llama_stack_client.types.memory_insert_params import Document
-from counter import get_counter
 
 client = LlamaStackClient(
     base_url="http://localhost:5001",
@@ -13,8 +18,7 @@ provider = providers["memory"][0]
 
 print("using provider: ", provider)
 
-counter = get_counter()
-bank_id = f"bank_pdf_paper{counter}"
+bank_id = "bank_pdf_paper"
 print("bank_id: ", bank_id)
 client.memory_banks.register(
     memory_bank_id=bank_id,
@@ -28,15 +32,15 @@ client.memory_banks.register(
 
 documents = [
     Document(
-        document_id=f"num-0",
+        document_id="num-0",
         content="https://arxiv.org/pdf/2407.21783",
         mime_type="application/pdf",
         metadata={},
     ),
     Document(
-        document_id=f"num-1",
+        document_id="num-1",
         content={
-          "uri": "https://raw.githubusercontent.com/py-pdf/sample-files/86217754b5056f02ed51d66ebd42d699df700bc1/011-google-doc-document/google-doc-document.pdf",
+            "uri": "https://raw.githubusercontent.com/py-pdf/sample-files/86217754b5056f02ed51d66ebd42d699df700bc1/011-google-doc-document/google-doc-document.pdf",
         },
         mime_type="application/pdf",
         metadata={},
@@ -47,4 +51,3 @@ client.memory.insert(
     bank_id=bank_id,
     documents=documents,
 )
-
