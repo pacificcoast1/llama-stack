@@ -99,6 +99,7 @@ def content_from_data(data_url: str) -> str:
 
 
 async def content_from_doc(doc: MemoryBankDocument) -> str:
+    print("doc ", doc)
     if isinstance(doc.content, URL):
         if doc.content.uri.startswith("data:"):
             return content_from_data(doc.content.uri)

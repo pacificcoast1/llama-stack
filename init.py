@@ -12,7 +12,7 @@ provider = providers["memory"][0]
 
 print("using provider: ", provider)
 
-bank_id = "bank_pdf_paper2"
+bank_id = "bank_pdf_paper3"
 client.memory_banks.register(
     memory_bank_id=bank_id,
     params={
