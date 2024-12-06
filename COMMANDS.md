@@ -19,4 +19,8 @@ conda create --prefix envs python=3.10
 conda activate ./envs
 
 pip install .
+
+llama-stack-client --endpoint http://localhost:$LLAMA_STACK_PORT \
+  inference chat-completion \
+  --message "hello, what model are you?"
 ```
