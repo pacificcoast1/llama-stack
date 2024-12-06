@@ -27,8 +27,8 @@ client.memory_banks.register(
     memory_bank_id=bank_id,
     params={
         "embedding_model": "all-MiniLM-L6-v2",
-        "chunk_size_in_tokens": 100,
-        "overlap_size_in_tokens": 10,
+        # Is the default for agent config: https://github.com/meta-llama/llama-stack/blob/66d8f4ffd126bff668434b314892a99fe854a034/llama_stack/providers/inline/agents/meta_reference/agent_instance.py#L668
+        "chunk_size_in_tokens": 512,
     },
     provider_id=provider.provider_id,
 )
