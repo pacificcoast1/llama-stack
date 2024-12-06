@@ -13,4 +13,10 @@ docker run \
   --port $LLAMA_STACK_PORT \
   --env INFERENCE_MODEL=$INFERENCE_MODEL \
   --env OLLAMA_URL=http://host.docker.internal:11434
+
+source ~/miniconda3/bin/activate
+conda create --prefix envs python=3.10
+conda activate ./envs
+
+pip install .
 ```
