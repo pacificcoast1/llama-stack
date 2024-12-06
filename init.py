@@ -16,6 +16,7 @@ providers = client.providers.list()
 memory_banks_response = client.memory_banks.list()
 
 print(providers)
+print(memory_banks_response)
 
 provider = providers["memory"][0]
 
