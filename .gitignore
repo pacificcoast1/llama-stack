@@ -21,5 +21,6 @@ docs/src
 envs/
 faiss-env/
 faiss_index.json
+faiss_index_squad.json
 faiss_store.db
 log-140-245-13-164
