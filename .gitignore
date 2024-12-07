@@ -20,3 +20,5 @@ _build
 docs/src
 envs/
 faiss-env/
+faiss_index.json
+faiss_store.db
