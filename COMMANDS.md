@@ -65,7 +65,7 @@ llama stack build --template meta-reference-gpu --image-type conda && llama stac
   --port 5001 \
   --env INFERENCE_MODEL=meta-llama/Llama-3.2-11B-Vision-Instruct
 
-llama stack build --template meta-reference-gpu --image-type conda && llama stack run distributions/meta-reference-gpu/run-with-safety.yaml \
+llama stack build --template meta-reference-gpu --image-type conda && track llama stack run distributions/meta-reference-gpu/run-with-safety.yaml \
   --port 5001 \
   --env INFERENCE_MODEL=meta-llama/Llama-3.2-11B-Vision-Instruct
 
@@ -110,7 +110,8 @@ conda activate ./faiss-env
 pip install "numpy<2.0" faiss-gpu aiosqlite sentence-transformers
 python inspect_faiss.py
 
-
+# Clear faiss index
+rm $SQLITE_STORE_DIR/faiss_store.db
 
 
 # Install pytest
