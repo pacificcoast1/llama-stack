@@ -69,6 +69,13 @@ llama stack build --template meta-reference-gpu --image-type conda && track llam
   --port 5001 \
   --env INFERENCE_MODEL=meta-llama/Llama-3.2-11B-Vision-Instruct
 
+screen -S llama-stack-run
+llama stack build --template meta-reference-gpu --image-type conda && run_nohup llama stack run distributions/meta-reference-gpu/run-with-safety.yaml \
+  --port 5001 \
+  --env INFERENCE_MODEL=meta-llama/Llama-3.2-11B-Vision-Instruct
+
+# To reconnect to screen:
+screen -r llama-stack-run
 
 ls $SQLITE_STORE_DIR
 sudo apt install sqlite3
@@ -120,4 +127,15 @@ pip install pytest pytest-asyncio pypdf pytest-httpx
 # Run tests
 source ~/miniconda3/bin/activate && conda activate llamastack-meta-reference-gpu
 pytest llama_stack/providers/tests/memory/test_vector_store.py -v
+
+
+# Run notebook - Ctrl-A D to detach
+screen -S llama-stack-notebook
+source ~/miniconda3/bin/activate
+conda activate ./envs
+pip install notebook
+jupyter notebook --notebook-dir=$(pwd)
+jupyter server list # To get the token
+# To reconnect to screen:
+screen -r llama-stack-notebook
 ```
