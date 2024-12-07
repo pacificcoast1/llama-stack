@@ -65,12 +65,10 @@ llama stack build --template meta-reference-gpu --image-type conda && llama stac
   --port 5001 \
   --env INFERENCE_MODEL=meta-llama/Llama-3.2-11B-Vision-Instruct
 
-llama stack build --template meta-reference-gpu --image-type conda && track llama stack run distributions/meta-reference-gpu/run-with-safety.yaml \
-  --port 5001 \
-  --env INFERENCE_MODEL=meta-llama/Llama-3.2-11B-Vision-Instruct
-
 screen -S llama-stack-run
-llama stack build --template meta-reference-gpu --image-type conda && run_nohup llama stack run distributions/meta-reference-gpu/run-with-safety.yaml \
+source ~/miniconda3/bin/activate
+conda activate ./envs
+llama stack build --template meta-reference-gpu --image-type conda && track llama stack run distributions/meta-reference-gpu/run-with-safety.yaml \
   --port 5001 \
   --env INFERENCE_MODEL=meta-llama/Llama-3.2-11B-Vision-Instruct
 
