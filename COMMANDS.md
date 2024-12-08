@@ -64,7 +64,8 @@ llama download --model-id Llama-Guard-3-1B
 screen -S llama-stack-run
 source ~/miniconda3/bin/activate
 conda activate ./envs
-llama stack build --template meta-reference-gpu --image-type conda && track llama stack run distributions/meta-reference-gpu/run.yaml \
+llama stack build --template meta-reference-gpu --image-type conda \
+&& track llama stack run distributions/meta-reference-gpu/run.yaml \
   --port 5001 \
   --env INFERENCE_MODEL=meta-llama/Llama-3.2-11B-Vision-Instruct
 
