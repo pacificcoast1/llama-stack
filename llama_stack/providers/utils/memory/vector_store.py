@@ -129,22 +129,22 @@ def make_overlapped_chunks(
     chunker = SentenceSplitter(chunk_size=window_len, chunk_overlap=overlap_len)
     text_chunks = chunker.split_text(text)
 
-    # chunks = []
-    # for chunk in text_chunks:
-    #     tokens = tokenizer.encode(chunk, bos=False, eos=False)
-    #     chunks.append(
-    #         Chunk(content=chunk, token_count=len(tokens), document_id=document_id)
-    #     )
-
-    tokens = tokenizer.encode(text, bos=False, eos=False)
-
     chunks = []
-    for i in range(0, len(tokens), window_len - overlap_len):
-        toks = tokens[i : i + window_len]
-        chunk = tokenizer.decode(toks)
+    for chunk in text_chunks:
+        tokens = tokenizer.encode(chunk, bos=False, eos=False)
         chunks.append(
-            Chunk(content=chunk, token_count=len(toks), document_id=document_id)
+            Chunk(content=chunk, token_count=len(tokens), document_id=document_id)
         )
+
+    # tokens = tokenizer.encode(text, bos=False, eos=False)
+
+    # chunks = []
+    # for i in range(0, len(tokens), window_len - overlap_len):
+    #     toks = tokens[i : i + window_len]
+    #     chunk = tokenizer.decode(toks)
+    #     chunks.append(
+    #         Chunk(content=chunk, token_count=len(toks), document_id=document_id)
+    #     )
 
     return chunks
 
