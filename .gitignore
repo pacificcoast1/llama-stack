@@ -25,3 +25,4 @@ faiss_index_squad.json
 faiss_index_quac.json
 faiss_store.db
 log-140-245-13-164
+faiss_index_narrativeqa_sentence.json
