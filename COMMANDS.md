@@ -10,6 +10,8 @@ conda create --prefix ./envs python=3.10
 source ~/miniconda3/bin/activate
 conda activate ./envs
 
+rm .git/hooks/pre-commit
+
 pip install pre-commit
 pre-commit install
 
