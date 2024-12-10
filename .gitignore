@@ -18,4 +18,4 @@ Package.resolved
 .vscode
 _build
 docs/src
-.envs/
+envs/
