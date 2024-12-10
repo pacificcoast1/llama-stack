@@ -23,9 +23,6 @@ from llama_models.llama3.api.tokenizer import Tokenizer
 
 from llama_stack.apis.memory import *  # noqa: F403
 
-from llama_index.core.node_parser.text import SentenceSplitter
-
-
 log = logging.getLogger(__name__)
 
 ALL_MINILM_L6_V2_DIMENSION = 384
@@ -136,7 +133,7 @@ def make_overlapped_chunks(
     # doc = converter.convert(source)
     # text = doc.document.export_to_text()
 
-    # tokenizer = Tokenizer.get_instance()
+    tokenizer = Tokenizer.get_instance()
 
     # chunker = SentenceSplitter(chunk_size=window_len, chunk_overlap=overlap_len)
     # text_chunks = chunker.split_text(text)
