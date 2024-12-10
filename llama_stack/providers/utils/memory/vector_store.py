@@ -145,6 +145,12 @@ def make_overlapped_chunks(
     #         Chunk(content=chunk, token_count=len(tokens), document_id=document_id)
     #     )
 
+    # html stripping
+    from bs4 import BeautifulSoup
+
+    soup = BeautifulSoup(text, 'html.parser')
+    text = soup.get_text()
+
     tokens = tokenizer.encode(text, bos=False, eos=False)
 
     chunks = []
