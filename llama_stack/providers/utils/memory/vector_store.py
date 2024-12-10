@@ -125,18 +125,18 @@ async def content_from_doc(doc: MemoryBankDocument) -> str:
 def make_overlapped_chunks(
     document_id: str, text: str, window_len: int, overlap_len: int
 ) -> List[Chunk]:
-    from docling.document_converter import DocumentConverter, DocumentStream
-    from io import BytesIO
+    # from docling.document_converter import DocumentConverter, DocumentStream
+    # from io import BytesIO
 
-    converter = DocumentConverter()
+    # converter = DocumentConverter()
 
-    # Convert document
-    buf = BytesIO(text.encode('utf-8'))
-    source = DocumentStream(name="my_doc.md", stream=buf)
-    doc = converter.convert(source)
-    text = doc.document.export_to_text()
+    # # Convert document
+    # buf = BytesIO(text.encode('utf-8'))
+    # source = DocumentStream(name="my_doc.md", stream=buf)
+    # doc = converter.convert(source)
+    # text = doc.document.export_to_text()
 
-    tokenizer = Tokenizer.get_instance()
+    # tokenizer = Tokenizer.get_instance()
 
     # chunker = SentenceSplitter(chunk_size=window_len, chunk_overlap=overlap_len)
     # text_chunks = chunker.split_text(text)
