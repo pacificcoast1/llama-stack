@@ -102,13 +102,14 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
                 n=1,
                 temperature=sampling_params.temperature,
                 top_p=sampling_params.top_p,
-                # We assume that a max_tokens of 0 means client has not set a value
+                # Assume that a max_tokens of 0 means client has not set a value
                 max_tokens=sampling_params.max_tokens or None,
                 # frequency_penalty and sampling_params.repetition_penalty seem to have different semantics
                 # frequency_penalty defaults to 0 is a float between -2.0 and 2.0
                 # repetition_penalty defaults to 1 and is often set somewhere between 1.0 and 2.0
                 # so we exclude it for now
                 frequency_penalty=None,
+                tools=tools
             )
             async def stream_response():
                 for chunk in response:
