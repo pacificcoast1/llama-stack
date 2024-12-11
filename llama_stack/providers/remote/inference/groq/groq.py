@@ -79,16 +79,14 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
         ChatCompletionResponse, AsyncGenerator
     ]:
         if logprobs:
-            warnings.warn("Groq does not support logprobs yet")
+            warnings.warn("logprobs are not supported yet")
         
         if stream:
             response = self._client.chat.completions.create(
                 model=self.get_provider_model_id(model_id),
                 messages=messages,
                 stream=True,
-                # Groq doesn't support logprobs yet
                 logprobs=False,
-                # Grow only supports n=1 at this stage
                 n=1,
             )
             async def stream_response():
