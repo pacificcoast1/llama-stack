@@ -85,8 +85,17 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
             )
             async def stream_response():
                 for chunk in response:
+                    # TODO(aidand): Is this 
+                    if chunk.choices[0].delta.content == None:
+                        yield ChatCompletionResponseStreamChunk(
+                            event=ChatCompletionResponseEvent(
+                                event_type=ChatCompletionResponseEventType.complete,
+                                delta=chunk.choices[0].delta.content,
+                            )
+                        )
+                        return
                     yield ChatCompletionResponseStreamChunk(
-                    event=ChatCompletionResponseEvent(
+                        event=ChatCompletionResponseEvent(
                         event_type=ChatCompletionResponseEventType.progress,
                         delta=chunk.choices[0].delta.content,
                     )
