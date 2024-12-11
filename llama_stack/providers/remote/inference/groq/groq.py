@@ -129,7 +129,7 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
             # Groq's JSON mode is beta at the time of writing
             warnings.warn("response_format is not supported yet")
 
-        if sampling_params.repetition_penalty:
+        if sampling_params.repetition_penalty != 1.0:
             warnings.warn("repetition_penalty is not supported")
 
         if sampling_params.strategy != SamplingStrategy.greedy:
@@ -174,12 +174,21 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
                             )
                         )
                         return
-                    yield ChatCompletionResponseStreamChunk(
-                        event=ChatCompletionResponseEvent(
-                        event_type=ChatCompletionResponseEventType.progress,
-                            delta=chunk.choices[0].delta.content,
+                    if chunk.choices[0].delta.tool_calls:
+                        tool_call = _convert_groq_tool_call(chunk.choices[0].delta.tool_calls[0])
+                        yield ChatCompletionResponseStreamChunk(
+                            event=ChatCompletionResponseEvent(
+                            event_type=ChatCompletionResponseEventType.tool_call,
+                            delta=tool_call,
+                            )
                         )
-                    )
+                    else:
+                        yield ChatCompletionResponseStreamChunk(
+                            event=ChatCompletionResponseEvent(
+                            event_type=ChatCompletionResponseEventType.progress,
+                            delta=chunk.choices[0].delta.content or "",
+                            )
+                        )
             return stream_response()
         print(self.get_provider_model_id(model_id))
         response = self._client.chat.completions.create(
