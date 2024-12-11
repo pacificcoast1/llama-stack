@@ -49,9 +49,6 @@ providers:
     provider_type: inline::meta-reference
     config: {}
   datasetio:
-  - provider_id: huggingface
-    provider_type: remote::huggingface
-    config: {}
   - provider_id: localfs
     provider_type: inline::localfs
     config: {}
@@ -59,20 +56,13 @@ providers:
   - provider_id: basic
     provider_type: inline::basic
     config: {}
-  - provider_id: llm-as-judge
-    provider_type: inline::llm-as-judge
-    config: {}
-  - provider_id: braintrust
-    provider_type: inline::braintrust
-    config:
-      openai_api_key: ${env.OPENAI_API_KEY:}
 metadata_store:
   namespace: null
   type: sqlite
   db_path: ${env.SQLITE_STORE_DIR:~/.llama/distributions/groq}/registry.db
 models:
 - metadata: {}
-  model_id: ${env.INFERENCE_MODEL}
+  model_id: Llama3.2-3B-Instruct
   provider_id: groq
   provider_model_id: null
 shields: []
