@@ -1,4 +1,4 @@
-from typing import AsyncIterator, List, Optional, Union
+from typing import AsyncIterator, List, Optional, Union, AsyncGenerator
 from llama_models.llama3.api.datatypes import (
     InterleavedTextMedia,
     Message,
@@ -10,7 +10,9 @@ from llama_models.datatypes import SamplingParams
 from llama_stack.apis.inference import (
     ChatCompletionRequest,
     ChatCompletionResponse,
+    ChatCompletionResponseEvent,
     ChatCompletionResponseStreamChunk,
+    ChatCompletionResponseEventType,
     CompletionResponse,
     CompletionMessage,
     CompletionResponseStreamChunk,
@@ -26,6 +28,7 @@ from llama_stack.providers.utils.inference.model_registry import (
 from llama_stack.providers.remote.inference.groq.config import GroqConfig
 from llama_models.sku_list import CoreModelId
 from llama_models.llama3.api.datatypes import StopReason
+import asyncio
 
 _MODEL_ALIASES = [
     build_model_alias(
@@ -71,12 +74,29 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
         stream: Optional[bool] = False,
         logprobs: Optional[LogProbConfig] = None,
     ) -> Union[
-        ChatCompletionResponse, AsyncIterator[ChatCompletionResponseStreamChunk]
+        ChatCompletionResponse, AsyncGenerator
     ]:
-        return ChatCompletionResponse(
-            completion_message=CompletionMessage(
-                content=["Hello World"],
-                stop_reason=StopReason.end_of_turn,
-            ),
-            logprobs=None,
-        )
+        # return ChatCompletionResponse(
+        #     completion_message=CompletionMessage(
+        #         content=["Hello World"],
+        #         stop_reason=StopReason.end_of_turn,
+        #     ),
+        #     logprobs=None,
+        # )
+        # async def generate_alphabet():
+        #     for letter in 'abcdefghijklmnopqrstuvwxyz':
+        #         await asyncio.sleep(1)
+        #         if letter == 'a':
+        #             event_type = ChatCompletionResponseEventType.start
+        #         elif letter == 'z':
+        #             event_type = ChatCompletionResponseEventType.complete
+        #         else:
+        #             event_type = ChatCompletionResponseEventType.progress
+        #         yield ChatCompletionResponseStreamChunk(
+        #             event=ChatCompletionResponseEvent(
+        #                 event_type=event_type,
+        #                 delta=letter,
+        #                 stop_reason=StopReason.end_of_turn if letter == 'z' else None
+        #             )
+        #         )
+        # return generate_alphabet()
