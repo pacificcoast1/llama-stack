@@ -24,9 +24,19 @@ from llama_stack.providers.utils.inference.model_registry import (
     ModelRegistryHelper,
 )
 from llama_stack.providers.remote.inference.groq.config import GroqConfig
+from llama_models.sku_list import CoreModelId
+from llama_models.llama3.api.datatypes import StopReason
+
+_MODEL_ALIASES = [
+    build_model_alias(
+        "meta-llama/Llama-3.2-3B-Instruct",
+        CoreModelId.llama3_2_3b_instruct.value,
+    ),
+]
 
 class GroqInferenceAdapter(Inference, ModelRegistryHelper):
     def __init__(self, config: GroqConfig) -> None:
+        ModelRegistryHelper.__init__(self, model_aliases=_MODEL_ALIASES)
         pass
 
     def completion(
@@ -64,6 +74,9 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
         ChatCompletionResponse, AsyncIterator[ChatCompletionResponseStreamChunk]
     ]:
         return ChatCompletionResponse(
-            completion_message=CompletionMessage(content="Hello World"),
+            completion_message=CompletionMessage(
+                content=["Hello World"],
+                stop_reason=StopReason.end_of_turn,
+            ),
             logprobs=None,
         )
