@@ -7,6 +7,7 @@ from llama_models.llama3.api.datatypes import (
     ToolDefinition,
     ToolPromptFormat,
     SamplingStrategy,
+    ToolParamDefinition,
 )
 from llama_models.datatypes import SamplingParams
 from llama_stack.apis.inference import (
@@ -31,6 +32,27 @@ from llama_stack.providers.remote.inference.groq.config import GroqConfig
 from llama_models.sku_list import CoreModelId
 from llama_models.llama3.api.datatypes import StopReason
 from groq import Groq
+
+def _convert_groq_tool_definition(tool_definition: ToolDefinition) -> dict:
+    tool_parameters = tool_definition.parameters or {}
+    # TODO - use groq types
+    return {
+        "name": tool_definition.tool_name,
+        "description": tool_definition.description,
+        "parameters": [
+            _convert_groq_tool_parameter(key, param) for key, param in tool_parameters.items()
+        ],
+    }
+
+def _convert_groq_tool_parameter(name: str, tool_parameter: ToolParamDefinition) -> dict:
+    # TODO - use groq types
+    return {
+        "name": name,
+        "type": tool_parameter.param_type,
+        "description": tool_parameter.description,
+        "required": tool_parameter.required,
+        "default": tool_parameter.default,
+    }
 
 _MODEL_ALIASES = [
     build_model_alias(
