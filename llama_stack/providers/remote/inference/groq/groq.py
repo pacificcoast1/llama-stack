@@ -28,19 +28,20 @@ from llama_stack.providers.utils.inference.model_registry import (
 from llama_stack.providers.remote.inference.groq.config import GroqConfig
 from llama_models.sku_list import CoreModelId
 from llama_models.llama3.api.datatypes import StopReason
-import asyncio
+from groq import Groq
 
 _MODEL_ALIASES = [
     build_model_alias(
-        "meta-llama/Llama-3.2-3B-Instruct",
+        "llama3-8b-8192",
         CoreModelId.llama3_2_3b_instruct.value,
     ),
 ]
 
 class GroqInferenceAdapter(Inference, ModelRegistryHelper):
+    client: Groq
     def __init__(self, config: GroqConfig) -> None:
         ModelRegistryHelper.__init__(self, model_aliases=_MODEL_ALIASES)
-        pass
+        self.client = Groq(api_key=config.api_key)
 
     def completion(
         self,
@@ -76,13 +77,18 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
     ) -> Union[
         ChatCompletionResponse, AsyncGenerator
     ]:
-        # return ChatCompletionResponse(
-        #     completion_message=CompletionMessage(
-        #         content=["Hello World"],
-        #         stop_reason=StopReason.end_of_turn,
-        #     ),
-        #     logprobs=None,
-        # )
+        print(self.get_provider_model_id(model_id))
+        response = self.client.chat.completions.create(
+            model=self.get_provider_model_id(model_id),
+            messages=messages,
+        )
+        return ChatCompletionResponse(
+            completion_message=CompletionMessage(
+                content=response.choices[0].message.content,
+                stop_reason=StopReason.end_of_turn,
+            ),
+            logprobs=None,
+        )
         # async def generate_alphabet():
         #     for letter in 'abcdefghijklmnopqrstuvwxyz':
         #         await asyncio.sleep(1)
