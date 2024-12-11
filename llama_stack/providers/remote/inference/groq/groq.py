@@ -6,6 +6,7 @@ from llama_models.llama3.api.datatypes import (
     ToolChoice,
     ToolDefinition,
     ToolPromptFormat,
+    SamplingStrategy,
 )
 from llama_models.datatypes import SamplingParams
 from llama_stack.apis.inference import (
@@ -83,6 +84,15 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
         
         if response_format:
             warnings.warn("response_format is not supported yet")
+
+        if sampling_params.repetition_penalty:
+            warnings.warn("repetition_penalty is not supported yet")
+        
+        if sampling_params.frequency_penalty:
+            warnings.warn("sampling_params.frequency_penalty is not supported yet")
+
+        if sampling_params.strategy != SamplingStrategy.greedy:
+            warnings.warn("sampling_params.strategy is not supported yet")
         
         if stream:
             response = self._client.chat.completions.create(
