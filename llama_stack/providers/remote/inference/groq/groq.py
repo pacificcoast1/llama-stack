@@ -41,7 +41,7 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
     client: Groq
     def __init__(self, config: GroqConfig) -> None:
         ModelRegistryHelper.__init__(self, model_aliases=_MODEL_ALIASES)
-        self.client = Groq(api_key=config.api_key)
+        self._client = Groq(api_key=config.api_key)
 
     def completion(
         self,
@@ -78,10 +78,14 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
         ChatCompletionResponse, AsyncGenerator
     ]:
         if stream:
-            response = self.client.chat.completions.create(
+            response = self._client.chat.completions.create(
                 model=self.get_provider_model_id(model_id),
                 messages=messages,
                 stream=True,
+                # Groq doesn't support logprobs yet
+                logprobs=False,
+                # Grow only supports n=1 at this stage
+                n=1,
             )
             async def stream_response():
                 for chunk in response:
