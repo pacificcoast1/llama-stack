@@ -86,13 +86,10 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
             warnings.warn("response_format is not supported yet")
 
         if sampling_params.repetition_penalty:
-            warnings.warn("repetition_penalty is not supported yet")
-        
-        if sampling_params.frequency_penalty:
-            warnings.warn("sampling_params.frequency_penalty is not supported yet")
+            warnings.warn("repetition_penalty is not supported")
 
         if sampling_params.strategy != SamplingStrategy.greedy:
-            warnings.warn("sampling_params.strategy is not supported yet")
+            warnings.warn("sampling_params.strategy is not supported")
         
         if stream:
             response = self._client.chat.completions.create(
@@ -105,7 +102,8 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
                 n=1,
                 temperature=sampling_params.temperature,
                 top_p=sampling_params.top_p,
-                max_tokens=sampling_params.max_tokens,
+                # We assume that a max_tokens of 0 means client has not set a value
+                max_tokens=sampling_params.max_tokens or None,
                 # frequency_penalty and sampling_params.repetition_penalty seem to have different semantics
                 # frequency_penalty defaults to 0 is a float between -2.0 and 2.0
                 # repetition_penalty defaults to 1 and is often set somewhere between 1.0 and 2.0
