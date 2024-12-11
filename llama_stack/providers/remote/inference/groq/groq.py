@@ -94,6 +94,11 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
                 temperature=sampling_params.temperature,
                 top_p=sampling_params.top_p,
                 max_tokens=sampling_params.max_tokens,
+                # frequency_penalty and sampling_params.repetition_penalty seem to have different semantics
+                # frequency_penalty is a float between -2.0 and 2.0
+                # repetition_penalty is a float between 1.0 and 2.0
+                # so we exclude it for now
+                frequency_penalty=None,
             )
             async def stream_response():
                 for chunk in response:
