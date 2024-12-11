@@ -77,6 +77,22 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
     ) -> Union[
         ChatCompletionResponse, AsyncGenerator
     ]:
+        if stream:
+            response = self.client.chat.completions.create(
+                model=self.get_provider_model_id(model_id),
+                messages=messages,
+                stream=True,
+            )
+            async def stream_response():
+                for chunk in response:
+                    yield ChatCompletionResponseStreamChunk(
+                    event=ChatCompletionResponseEvent(
+                        event_type=ChatCompletionResponseEventType.progress,
+                        delta=chunk.choices[0].delta.content,
+                    )
+                )
+            return stream_response()
+
         print(self.get_provider_model_id(model_id))
         response = self.client.chat.completions.create(
             model=self.get_provider_model_id(model_id),
