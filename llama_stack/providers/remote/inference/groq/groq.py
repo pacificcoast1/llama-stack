@@ -1,4 +1,12 @@
 from typing import AsyncIterator, List, Optional, Union
+from llama_models.llama3.api.datatypes import (
+    InterleavedTextMedia,
+    Message,
+    ToolChoice,
+    ToolDefinition,
+    ToolPromptFormat,
+)
+from llama_models.datatypes import SamplingParams
 from llama_stack.apis.inference import (
     ChatCompletionRequest,
     ChatCompletionResponse,
@@ -15,6 +23,7 @@ from llama_stack.providers.utils.inference.model_registry import (
     build_model_alias,
     ModelRegistryHelper,
 )
+from llama_stack.providers.remote.inference.groq.config import GroqConfig
 
 class GroqInferenceAdapter(Inference, ModelRegistryHelper):
     def __init__(self, config: GroqConfig) -> None:
