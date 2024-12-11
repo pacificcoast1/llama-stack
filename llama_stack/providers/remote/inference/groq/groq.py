@@ -93,15 +93,24 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
                 n=1,
                 temperature=sampling_params.temperature,
                 top_p=sampling_params.top_p,
+                max_tokens=sampling_params.max_tokens,
             )
             async def stream_response():
                 for chunk in response:
-                    if chunk.choices[0].finish_reason == 'stop':
+                    if (chunk.choices[0].finish_reason == 'stop'
+                        or chunk.choices[0].finish_reason == 'length'):
+                        if chunk.choices[0].finish_reason == 'length':
+                            stop_reason = StopReason.out_of_tokens
+                        elif chunk.choices[0].finish_reason == 'stop':
+                            stop_reason = StopReason.end_of_message
+                        else:
+                            warnings.warn(f"Unknown finish reason: {chunk.choices[0].finish_reason}")
+                            stop_reason = StopReason.end_of_message
                         yield ChatCompletionResponseStreamChunk(
                             event=ChatCompletionResponseEvent(
                                 event_type=ChatCompletionResponseEventType.complete,
                                 delta="",
-                                stop_reason=StopReason.end_of_message,
+                                stop_reason=stop_reason,
                             )
                         )
                         return
