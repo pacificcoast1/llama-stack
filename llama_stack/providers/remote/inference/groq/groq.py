@@ -1,3 +1,4 @@
+import warnings
 from typing import AsyncIterator, List, Optional, Union, AsyncGenerator
 from llama_models.llama3.api.datatypes import (
     InterleavedTextMedia,
@@ -77,6 +78,9 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
     ) -> Union[
         ChatCompletionResponse, AsyncGenerator
     ]:
+        if logprobs:
+            warnings.warn("Groq does not support logprobs yet")
+        
         if stream:
             response = self._client.chat.completions.create(
                 model=self.get_provider_model_id(model_id),
