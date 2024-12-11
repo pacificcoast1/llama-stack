@@ -167,7 +167,8 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
                     yield ChatCompletionResponseStreamChunk(
                         event=ChatCompletionResponseEvent(
                         event_type=ChatCompletionResponseEventType.progress,
-                        delta=chunk.choices[0].delta.content,
+                            delta=chunk.choices[0].delta.content,
+                        )
                     )
             return stream_response()
 
