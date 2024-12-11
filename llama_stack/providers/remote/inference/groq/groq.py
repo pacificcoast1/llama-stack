@@ -97,8 +97,8 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
                 top_p=sampling_params.top_p,
                 max_tokens=sampling_params.max_tokens,
                 # frequency_penalty and sampling_params.repetition_penalty seem to have different semantics
-                # frequency_penalty is a float between -2.0 and 2.0
-                # repetition_penalty is a float between 1.0 and 2.0
+                # frequency_penalty defaults to 0 is a float between -2.0 and 2.0
+                # repetition_penalty defaults to 1 and is often set somewhere between 1.0 and 2.0
                 # so we exclude it for now
                 frequency_penalty=None,
             )
