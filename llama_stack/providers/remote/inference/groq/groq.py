@@ -25,6 +25,7 @@ from llama_stack.apis.inference import (
     ResponseFormat,
     ToolCallDelta,
     ToolCall,
+    ToolCallParseStatus,
 )
 from llama_stack.providers.utils.inference.model_registry import (
     build_model_alias,
@@ -34,14 +35,17 @@ from llama_stack.providers.remote.inference.groq.config import GroqConfig
 from llama_models.sku_list import CoreModelId
 from llama_models.llama3.api.datatypes import StopReason
 from groq import Groq
-from groq.types.chat.chat_completion_message_tool_call import ChatCompletionMessageToolCall
+from groq.types.chat.chat_completion_message_tool_call import (
+    ChatCompletionMessageToolCall,
+)
 import json
+
 
 def _convert_groq_tool_definition(tool_definition: ToolDefinition) -> dict:
     # Groq requires a description for function tools
     if tool_definition.description is None:
         raise AssertionError("tool_definition.description is required")
-    
+
     tool_parameters = tool_definition.parameters or {}
     # TODO - use groq types
     return {
@@ -52,11 +56,16 @@ def _convert_groq_tool_definition(tool_definition: ToolDefinition) -> dict:
             "name": tool_definition.tool_name,
             "description": tool_definition.description,
             "parameters": {
-                key: _convert_groq_tool_parameter(key, param) for key, param in tool_parameters.items()
+                key: _convert_groq_tool_parameter(key, param)
+                for key, param in tool_parameters.items()
             },
         },
     }
-def _convert_groq_tool_parameter(name: str, tool_parameter: ToolParamDefinition) -> dict:
+
+
+def _convert_groq_tool_parameter(
+    name: str, tool_parameter: ToolParamDefinition
+) -> dict:
     # TODO - use groq types
     return {
         "name": name,
@@ -66,12 +75,14 @@ def _convert_groq_tool_parameter(name: str, tool_parameter: ToolParamDefinition)
         "default": tool_parameter.default,
     }
 
+
 def _convert_groq_tool_call(tool_call: ChatCompletionMessageToolCall) -> ToolCall:
     return ToolCall(
         call_id=tool_call.id,
         tool_name=tool_call.function.name,
         arguments=json.loads(tool_call.function.arguments),
     )
+
 
 _MODEL_ALIASES = [
     build_model_alias(
@@ -80,8 +91,10 @@ _MODEL_ALIASES = [
     ),
 ]
 
+
 class GroqInferenceAdapter(Inference, ModelRegistryHelper):
     client: Groq
+
     def __init__(self, config: GroqConfig) -> None:
         ModelRegistryHelper.__init__(self, model_aliases=_MODEL_ALIASES)
         self._client = Groq(api_key=config.api_key)
@@ -118,13 +131,11 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
         ] = None,  # API default is ToolPromptFormat.json, we default to None to detect user input
         stream: Optional[bool] = False,
         logprobs: Optional[LogProbConfig] = None,
-    ) -> Union[
-        ChatCompletionResponse, AsyncGenerator
-    ]:
+    ) -> Union[ChatCompletionResponse, AsyncGenerator]:
         if logprobs:
             # Groq doesn't support logprobs at the time of writing
             warnings.warn("logprobs are not supported yet")
-        
+
         if response_format:
             # Groq's JSON mode is beta at the time of writing
             warnings.warn("response_format is not supported yet")
@@ -134,7 +145,7 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
 
         if sampling_params.strategy != SamplingStrategy.greedy:
             warnings.warn("sampling_params.strategy is not supported")
-        
+
         if stream:
             response = self._client.chat.completions.create(
                 model=self.get_provider_model_id(model_id),
@@ -152,19 +163,24 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
                 # repetition_penalty defaults to 1 and is often set somewhere between 1.0 and 2.0
                 # so we exclude it for now
                 frequency_penalty=None,
-                tools=[_convert_groq_tool_definition(tool) for tool in tools or []]
+                tools=[_convert_groq_tool_definition(tool) for tool in tools or []],
             )
+
             async def stream_response():
                 for chunk in response:
                     print(chunk)
-                    if (chunk.choices[0].finish_reason == 'stop'
-                        or chunk.choices[0].finish_reason == 'length'):
-                        if chunk.choices[0].finish_reason == 'length':
+                    if (
+                        chunk.choices[0].finish_reason == "stop"
+                        or chunk.choices[0].finish_reason == "length"
+                    ):
+                        if chunk.choices[0].finish_reason == "length":
                             stop_reason = StopReason.out_of_tokens
-                        elif chunk.choices[0].finish_reason == 'stop':
+                        elif chunk.choices[0].finish_reason == "stop":
                             stop_reason = StopReason.end_of_message
                         else:
-                            warnings.warn(f"Unknown finish reason: {chunk.choices[0].finish_reason}")
+                            warnings.warn(
+                                f"Unknown finish reason: {chunk.choices[0].finish_reason}"
+                            )
                             stop_reason = StopReason.end_of_message
                         yield ChatCompletionResponseStreamChunk(
                             event=ChatCompletionResponseEvent(
@@ -175,30 +191,36 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
                         )
                         return
                     if chunk.choices[0].delta.tool_calls:
-                        tool_call = _convert_groq_tool_call(chunk.choices[0].delta.tool_calls[0])
+                        tool_call = _convert_groq_tool_call(
+                            chunk.choices[0].delta.tool_calls[0]
+                        )
                         yield ChatCompletionResponseStreamChunk(
                             event=ChatCompletionResponseEvent(
-                            event_type=ChatCompletionResponseEventType.tool_call,
-                            delta=tool_call,
+                                event_type=ChatCompletionResponseEventType.progress,
+                                delta=ToolCallDelta(
+                                    content=tool_call,
+                                    parse_status=ToolCallParseStatus.in_progress,
+                                ),
                             )
                         )
                     else:
                         yield ChatCompletionResponseStreamChunk(
                             event=ChatCompletionResponseEvent(
-                            event_type=ChatCompletionResponseEventType.progress,
-                            delta=chunk.choices[0].delta.content or "",
+                                event_type=ChatCompletionResponseEventType.progress,
+                                delta=chunk.choices[0].delta.content or "",
                             )
                         )
+
             return stream_response()
         print(self.get_provider_model_id(model_id))
         response = self._client.chat.completions.create(
             model=self.get_provider_model_id(model_id),
             messages=messages,
-            tools=[_convert_groq_tool_definition(tool) for tool in tools or []]
+            tools=[_convert_groq_tool_definition(tool) for tool in tools or []],
         )
         print(response)
         choice = response.choices[0]
-        if choice.finish_reason == 'tool_calls':
+        if choice.finish_reason == "tool_calls":
             tool_call = choice.message.tool_calls[0]
             # Only expect one tool call at a time
             tool_call = _convert_groq_tool_call(tool_call)
@@ -218,7 +240,7 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
                     stop_reason=StopReason.end_of_turn,
                 ),
                 logprobs=None,
-        )
+            )
         # async def generate_alphabet():
         #     for letter in 'abcdefghijklmnopqrstuvwxyz':
         #         await asyncio.sleep(1)
