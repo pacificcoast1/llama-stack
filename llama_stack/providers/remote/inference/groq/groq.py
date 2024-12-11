@@ -89,7 +89,9 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
                 model=self.get_provider_model_id(model_id),
                 messages=messages,
                 stream=True,
+                # Groq doesn't support logprobs at this stage
                 logprobs=False,
+                # Groq only supports n=1 at this stage
                 n=1,
                 temperature=sampling_params.temperature,
                 top_p=sampling_params.top_p,
