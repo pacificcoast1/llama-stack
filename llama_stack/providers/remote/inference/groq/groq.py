@@ -24,6 +24,7 @@ from llama_stack.apis.inference import (
     LogProbConfig,
     ResponseFormat,
     ToolCallDelta,
+    ToolCall,
 )
 from llama_stack.providers.utils.inference.model_registry import (
     build_model_alias,
@@ -33,6 +34,8 @@ from llama_stack.providers.remote.inference.groq.config import GroqConfig
 from llama_models.sku_list import CoreModelId
 from llama_models.llama3.api.datatypes import StopReason
 from groq import Groq
+from groq.types.chat.chat_completion_message_tool_call import ChatCompletionMessageToolCall
+import json
 
 def _convert_groq_tool_definition(tool_definition: ToolDefinition) -> dict:
     # Groq requires a description for function tools
@@ -62,6 +65,13 @@ def _convert_groq_tool_parameter(name: str, tool_parameter: ToolParamDefinition)
         "required": tool_parameter.required,
         "default": tool_parameter.default,
     }
+
+def _convert_groq_tool_call(tool_call: ChatCompletionMessageToolCall) -> ToolCall:
+    return ToolCall(
+        call_id=tool_call.id,
+        tool_name=tool_call.function.name,
+        arguments=json.loads(tool_call.function.arguments),
+    )
 
 _MODEL_ALIASES = [
     build_model_alias(
@@ -171,18 +181,34 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
                         )
                     )
             return stream_response()
-
         print(self.get_provider_model_id(model_id))
-        response = self.client.chat.completions.create(
+        response = self._client.chat.completions.create(
             model=self.get_provider_model_id(model_id),
             messages=messages,
+            tools=[_convert_groq_tool_definition(tool) for tool in tools or []]
         )
-        return ChatCompletionResponse(
-            completion_message=CompletionMessage(
-                content=response.choices[0].message.content,
-                stop_reason=StopReason.end_of_turn,
-            ),
-            logprobs=None,
+        print(response)
+        choice = response.choices[0]
+        if choice.finish_reason == 'tool_calls':
+            tool_call = choice.message.tool_calls[0]
+            # Only expect one tool call at a time
+            tool_call = _convert_groq_tool_call(tool_call)
+            return ChatCompletionResponse(
+                completion_message=CompletionMessage(
+                    tool_calls=[tool_call],
+                    stop_reason=StopReason.end_of_message,
+                    # Content is not optional
+                    content="",
+                ),
+                logprobs=None,
+            )
+        else:
+            return ChatCompletionResponse(
+                completion_message=CompletionMessage(
+                    content=choice.message.content,
+                    stop_reason=StopReason.end_of_turn,
+                ),
+                logprobs=None,
         )
         # async def generate_alphabet():
         #     for letter in 'abcdefghijklmnopqrstuvwxyz':
