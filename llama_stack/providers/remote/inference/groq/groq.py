@@ -23,6 +23,7 @@ from llama_stack.apis.inference import (
     Inference,
     LogProbConfig,
     ResponseFormat,
+    ToolCallDelta,
 )
 from llama_stack.providers.utils.inference.model_registry import (
     build_model_alias,
@@ -47,9 +48,9 @@ def _convert_groq_tool_definition(tool_definition: ToolDefinition) -> dict:
         "function": {
             "name": tool_definition.tool_name,
             "description": tool_definition.description,
-            "parameters": [
-                _convert_groq_tool_parameter(key, param) for key, param in tool_parameters.items()
-            ],
+            "parameters": {
+                key: _convert_groq_tool_parameter(key, param) for key, param in tool_parameters.items()
+            },
         },
     }
 def _convert_groq_tool_parameter(name: str, tool_parameter: ToolParamDefinition) -> dict:
@@ -145,6 +146,7 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
             )
             async def stream_response():
                 for chunk in response:
+                    print(chunk)
                     if (chunk.choices[0].finish_reason == 'stop'
                         or chunk.choices[0].finish_reason == 'length'):
                         if chunk.choices[0].finish_reason == 'length':
@@ -167,7 +169,6 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
                         event_type=ChatCompletionResponseEventType.progress,
                         delta=chunk.choices[0].delta.content,
                     )
-                )
             return stream_response()
 
         print(self.get_provider_model_id(model_id))
