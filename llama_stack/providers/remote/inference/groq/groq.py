@@ -106,11 +106,11 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
         ChatCompletionResponse, AsyncGenerator
     ]:
         if logprobs:
-            # Groq doesn't support logprobs as of time of writing
+            # Groq doesn't support logprobs at the time of writing
             warnings.warn("logprobs are not supported yet")
         
         if response_format:
-            # Groq's JSON mode is beta as of time of writing
+            # Groq's JSON mode is beta at the time of writing
             warnings.warn("response_format is not supported yet")
 
         if sampling_params.repetition_penalty:
@@ -125,7 +125,7 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
                 messages=messages,
                 stream=True,
                 logprobs=False,
-                # Groq only supports n=1 as of time of writing
+                # Groq only supports n=1 at the time of writing
                 n=1,
                 temperature=sampling_params.temperature,
                 top_p=sampling_params.top_p,
