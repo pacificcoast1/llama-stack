@@ -91,6 +91,8 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
                 stream=True,
                 logprobs=False,
                 n=1,
+                temperature=sampling_params.temperature,
+                top_p=sampling_params.top_p,
             )
             async def stream_response():
                 for chunk in response:
