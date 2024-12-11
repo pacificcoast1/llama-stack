@@ -43,6 +43,7 @@ def _convert_groq_tool_definition(tool_definition: ToolDefinition) -> dict:
     return {
         # Groq only supports function tools are supported at the time of writing
         "type": "function",
+        "description": tool_definition.description,
         "function": {
             "name": tool_definition.tool_name,
             "description": tool_definition.description,
