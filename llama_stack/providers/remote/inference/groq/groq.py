@@ -34,10 +34,14 @@ from llama_models.llama3.api.datatypes import StopReason
 from groq import Groq
 
 def _convert_groq_tool_definition(tool_definition: ToolDefinition) -> dict:
+    # Groq requires a description for function tools
+    if tool_definition.description is None:
+        raise AssertionError("tool_definition.description is required")
+    
     tool_parameters = tool_definition.parameters or {}
     # TODO - use groq types
     return {
-        # Groq only supports function tools are supported at this stage
+        # Groq only supports function tools are supported at the time of writing
         "type": "function",
         "function": {
             "name": tool_definition.tool_name,
@@ -79,7 +83,7 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
         stream: Optional[bool] = False,
         logprobs: Optional[LogProbConfig] = None,
     ) -> Union[CompletionResponse, AsyncIterator[CompletionResponseStreamChunk]]:
-        # Groq doesn't support completion as of time of writing
+        # Groq doesn't support non-chat completion as of time of writing
         raise NotImplementedError()
 
     async def embeddings(
@@ -136,7 +140,7 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
                 # repetition_penalty defaults to 1 and is often set somewhere between 1.0 and 2.0
                 # so we exclude it for now
                 frequency_penalty=None,
-                tools=tools
+                tools=[_convert_groq_tool_definition(tool) for tool in tools or []]
             )
             async def stream_response():
                 for chunk in response:
