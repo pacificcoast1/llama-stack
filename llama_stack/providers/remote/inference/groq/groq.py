@@ -81,6 +81,9 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
         if logprobs:
             warnings.warn("logprobs are not supported yet")
         
+        if response_format:
+            warnings.warn("response_format is not supported yet")
+        
         if stream:
             response = self._client.chat.completions.create(
                 model=self.get_provider_model_id(model_id),
