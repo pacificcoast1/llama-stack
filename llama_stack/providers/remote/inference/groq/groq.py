@@ -37,13 +37,16 @@ def _convert_groq_tool_definition(tool_definition: ToolDefinition) -> dict:
     tool_parameters = tool_definition.parameters or {}
     # TODO - use groq types
     return {
-        "name": tool_definition.tool_name,
-        "description": tool_definition.description,
-        "parameters": [
-            _convert_groq_tool_parameter(key, param) for key, param in tool_parameters.items()
-        ],
+        # Groq only supports function tools are supported at this stage
+        "type": "function",
+        "function": {
+            "name": tool_definition.tool_name,
+            "description": tool_definition.description,
+            "parameters": [
+                _convert_groq_tool_parameter(key, param) for key, param in tool_parameters.items()
+            ],
+        },
     }
-
 def _convert_groq_tool_parameter(name: str, tool_parameter: ToolParamDefinition) -> dict:
     # TODO - use groq types
     return {
