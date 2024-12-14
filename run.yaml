@@ -69,6 +69,10 @@ models:
   model_id: Llama3.1-8B-Instruct
   provider_id: groq
   provider_model_id: null
+- metadata: {}
+  model_id: Llama-3-70B-Instruct
+  provider_id: groq
+  provider_model_id: null
 shields: []
 memory_banks: []
 datasets: []

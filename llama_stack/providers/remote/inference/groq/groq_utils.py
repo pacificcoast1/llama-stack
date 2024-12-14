@@ -183,7 +183,7 @@ def _map_finish_reason_to_stop_reason(
     if finish_reason == "stop":
         return StopReason.end_of_turn
     elif finish_reason == "length":
-        return StopReason.end_of_message
+        return StopReason.out_of_tokens
     elif finish_reason == "tool_calls":
         # TODO - is this correct?
         return StopReason.end_of_message
@@ -214,6 +214,7 @@ async def convert_chat_completion_response_stream(
             stop_reason = _map_finish_reason_to_stop_reason(choice.finish_reason)
 
         if choice.delta.tool_calls:
+            # We assume Groq alwayss fits a single tool call in one delta
             tool_call = _convert_groq_tool_call(choice.delta.tool_calls[0])
             yield ChatCompletionResponseStreamChunk(
                 event=ChatCompletionResponseEvent(
