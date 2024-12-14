@@ -214,7 +214,7 @@ async def convert_chat_completion_response_stream(
             stop_reason = _map_finish_reason_to_stop_reason(choice.finish_reason)
 
         if choice.delta.tool_calls:
-            # We assume Groq alwayss fits a single tool call in one delta
+            # We assume Groq always puts a single tool call in one delta
             tool_call = _convert_groq_tool_call(choice.delta.tool_calls[0])
             yield ChatCompletionResponseStreamChunk(
                 event=ChatCompletionResponseEvent(
