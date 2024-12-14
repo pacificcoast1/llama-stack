@@ -215,6 +215,8 @@ async def convert_chat_completion_response_stream(
 
         if choice.delta.tool_calls:
             # We assume Groq always puts exactly one tool call in one chunk
+            # There isn't any explicit documentation on this, but based on testing
+            # it seems to be the case.
             tool_call = _convert_groq_tool_call(choice.delta.tool_calls[0])
             yield ChatCompletionResponseStreamChunk(
                 event=ChatCompletionResponseEvent(
