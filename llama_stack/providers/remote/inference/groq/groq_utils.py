@@ -81,6 +81,9 @@ def _convert_groq_tool_call(tool_call: ChatCompletionMessageToolCall) -> ToolCal
     return ToolCall(
         call_id=tool_call.id,
         tool_name=tool_call.function.name,
+        # Note that Groq may return a string that is not valid JSON here
+        # So this may raise a 500 error. Going to leave this as is and see
+        # how big of an issue this is and what we can do about it.
         arguments=json.loads(tool_call.function.arguments),
     )
 
@@ -101,7 +104,7 @@ def convert_chat_completion_request(
         # Groq's JSON mode is beta at the time of writing
         warnings.warn("response_format is not supported yet")
 
-    if request.sampling_params.repetition_penalty:
+    if request.sampling_params.repetition_penalty != 1.0:
         # groq supports frequency_penalty, but frequency_penalty and sampling_params.repetition_penalty
         # seem to have different semantics
         # frequency_penalty defaults to 0 is a float between -2.0 and 2.0

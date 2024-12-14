@@ -7,6 +7,7 @@
 import warnings
 from typing import AsyncIterator, List, Optional, Union
 
+import groq
 from groq import Groq
 from llama_models.datatypes import SamplingParams
 from llama_models.llama3.api.datatypes import (
@@ -105,6 +106,7 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
         ChatCompletionResponse, AsyncIterator[ChatCompletionResponseStreamChunk]
     ]:
 
+        model_id = self.get_provider_model_id(model_id)
         if model_id == "llama-3.2-3b-preview":
             warnings.warn(
                 "Groq only contains a preview version for llama-3.2-3b-instruct. "
@@ -112,7 +114,6 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
                 "They can be discontinued on short notice."
             )
 
-        model_id = self.get_provider_model_id(model_id)
         request = convert_chat_completion_request(
             request=ChatCompletionRequest(
                 model=model_id,
