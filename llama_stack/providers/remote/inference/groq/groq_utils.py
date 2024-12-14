@@ -208,12 +208,17 @@ async def convert_chat_completion_response_stream(
     for chunk in stream:
         choice = chunk.choices[0]
 
-        # We assume there's only one finish_reason for the entire stream.
-        # We collect the last finish_reason
-        if choice.finish_reason:
-            stop_reason = _map_finish_reason_to_stop_reason(choice.finish_reason)
 
-        if choice.delta.tool_calls:
+        if choice.finish_reason:
+            yield ChatCompletionResponseStreamChunk(
+                event=ChatCompletionResponseEvent(
+                    event_type=ChatCompletionResponseEventType.complete,
+                    delta="",
+                    logprobs=None,
+                    stop_reason=_map_finish_reason_to_stop_reason(choice.finish_reason),
+                )
+            )
+        elif choice.delta.tool_calls:
             # We assume there is only one tool call per chunk, but emit a warning in case we're wrong
             if len(choice.delta.tool_calls) > 1:
                 warnings.warn("Groq returned multiple tool calls in one chunk. Using the first one, ignoring the rest.")
@@ -238,11 +243,3 @@ async def convert_chat_completion_response_stream(
                 )
             )
 
-    yield ChatCompletionResponseStreamChunk(
-        event=ChatCompletionResponseEvent(
-            event_type=ChatCompletionResponseEventType.complete,
-            delta="",
-            logprobs=None,
-            stop_reason=stop_reason,
-        )
-    )
