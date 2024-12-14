@@ -178,7 +178,8 @@ def _map_finish_reason_to_stop_reason(
     elif finish_reason == "length":
         return StopReason.end_of_message
     elif finish_reason == "tool_calls":
-        raise NotImplementedError("tool_calls is not supported yet")
+        # TODO - is this correct?
+        return StopReason.end_of_message
     else:
         raise ValueError(f"Invalid finish reason: {finish_reason}")
 
