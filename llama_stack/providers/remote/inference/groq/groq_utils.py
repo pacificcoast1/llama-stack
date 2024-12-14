@@ -138,13 +138,16 @@ def _convert_message(message: Message) -> ChatCompletionMessageParam:
 def convert_chat_completion_response(
     response: ChatCompletion,
 ) -> ChatCompletionResponse:
-    if response.choices[0].finish_reason == "tool_calls":
-        tool_call = response.choices[0].message.tool_calls[0]
-        # Only expect one tool call at a time
-        tool_call = _convert_groq_tool_call(tool_call)
+    # groq only supports n=1 at time of writing, so there is only one choice
+    choice = response.choices[0]
+    if choice.finish_reason == "tool_calls":
+        tool_calls = [
+            _convert_groq_tool_call(tool_call)
+            for tool_call in choice.message.tool_calls
+        ]
         return ChatCompletionResponse(
             completion_message=CompletionMessage(
-                tool_calls=[tool_call],
+                tool_calls=tool_calls,
                 stop_reason=StopReason.end_of_message,
                 # Content is not optional
                 content="",
@@ -152,8 +155,6 @@ def convert_chat_completion_response(
             logprobs=None,
         )
     else:
-        # groq only supports n=1 at time of writing, so there is only one choice
-        choice = response.choices[0]
         return ChatCompletionResponse(
             completion_message=CompletionMessage(
                 content=choice.message.content,
@@ -207,9 +208,7 @@ async def convert_chat_completion_response_stream(
             stop_reason = _map_finish_reason_to_stop_reason(choice.finish_reason)
 
         if choice.delta.tool_calls:
-            tool_call = _convert_groq_tool_call(
-                choice.delta.tool_calls[0]
-            )
+            tool_call = _convert_groq_tool_call(choice.delta.tool_calls[0])
             yield ChatCompletionResponseStreamChunk(
                 event=ChatCompletionResponseEvent(
                     event_type=next(event_types),
