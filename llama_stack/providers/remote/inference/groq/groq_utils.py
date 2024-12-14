@@ -126,7 +126,6 @@ def convert_chat_completion_request(
         temperature=request.sampling_params.temperature,
         top_p=request.sampling_params.top_p,
         tools=[_convert_groq_tool_definition(tool) for tool in request.tools or []],
-        # TODO - should I map this? The tool_choice happens to map to our type
         tool_choice=request.tool_choice.value if request.tool_choice else None,
     )
 
