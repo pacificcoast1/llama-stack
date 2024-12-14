@@ -6,7 +6,7 @@
 
 import warnings
 from typing import AsyncGenerator, Generator, Literal
-
+import json
 from groq import Stream
 from groq.types.chat.chat_completion import ChatCompletion
 from groq.types.chat.chat_completion_assistant_message_param import (
@@ -20,9 +20,10 @@ from groq.types.chat.chat_completion_system_message_param import (
 from groq.types.chat.chat_completion_user_message_param import (
     ChatCompletionUserMessageParam,
 )
-
 from groq.types.chat.completion_create_params import CompletionCreateParams
-
+from groq.types.chat.chat_completion_message_tool_call import (
+    ChatCompletionMessageToolCall,
+)
 from llama_stack.apis.inference import (
     ChatCompletionRequest,
     ChatCompletionResponse,
@@ -33,7 +34,53 @@ from llama_stack.apis.inference import (
     Message,
     Role,
     StopReason,
+    ToolCall,
+    ToolDefinition,
+    ToolParamDefinition,
 )
+
+
+def _convert_groq_tool_definition(tool_definition: ToolDefinition) -> dict:
+    # Groq requires a description for function tools
+    if tool_definition.description is None:
+        raise AssertionError("tool_definition.description is required")
+
+    tool_parameters = tool_definition.parameters or {}
+    # TODO - use groq types
+    return {
+        # Groq only supports function tools are supported at the time of writing
+        "type": "function",
+        "description": tool_definition.description,
+        "function": {
+            "name": tool_definition.tool_name,
+            "description": tool_definition.description,
+            "parameters": {
+                key: _convert_groq_tool_parameter(key, param)
+                for key, param in tool_parameters.items()
+            },
+        },
+    }
+
+
+def _convert_groq_tool_parameter(
+    name: str, tool_parameter: ToolParamDefinition
+) -> dict:
+    # TODO - use groq types
+    return {
+        "name": name,
+        "type": tool_parameter.param_type,
+        "description": tool_parameter.description,
+        "required": tool_parameter.required,
+        "default": tool_parameter.default,
+    }
+
+
+def _convert_groq_tool_call(tool_call: ChatCompletionMessageToolCall) -> ToolCall:
+    return ToolCall(
+        call_id=tool_call.id,
+        tool_name=tool_call.function.name,
+        arguments=json.loads(tool_call.function.arguments),
+    )
 
 
 def convert_chat_completion_request(
@@ -60,9 +107,6 @@ def convert_chat_completion_request(
         # so we exclude it for now
         warnings.warn("repetition_penalty is not supported")
 
-    if request.tools:
-        warnings.warn("tools are not supported yet")
-
     return CompletionCreateParams(
         model=request.model,
         messages=[_convert_message(message) for message in request.messages],
@@ -72,6 +116,7 @@ def convert_chat_completion_request(
         max_tokens=request.sampling_params.max_tokens or None,
         temperature=request.sampling_params.temperature,
         top_p=request.sampling_params.top_p,
+        tools=[_convert_groq_tool_definition(tool) for tool in request.tools or []],
     )
 
 
