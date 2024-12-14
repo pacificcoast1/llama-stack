@@ -208,7 +208,6 @@ async def convert_chat_completion_response_stream(
     for chunk in stream:
         choice = chunk.choices[0]
 
-
         if choice.finish_reason:
             yield ChatCompletionResponseStreamChunk(
                 event=ChatCompletionResponseEvent(
