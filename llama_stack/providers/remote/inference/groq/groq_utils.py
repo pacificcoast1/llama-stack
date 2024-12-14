@@ -5,7 +5,7 @@
 # the root directory of this source tree.
 
 import warnings
-from typing import AsyncGenerator, Generator, Literal
+from typing import AsyncGenerator, Generator, Literal, Union
 import json
 from groq import Stream
 from groq.types.chat.chat_completion import ChatCompletion
@@ -78,14 +78,22 @@ def _convert_groq_tool_parameter(
     }
 
 
-def _convert_groq_tool_call(tool_call: ChatCompletionMessageToolCall) -> ToolCall:
+def _convert_groq_tool_call(tool_call: ChatCompletionMessageToolCall) -> Union[ToolCall, None]:
+    """
+    Convert a Groq tool call to a ToolCall.
+    Returns None if the arguments are not valid JSON.
+    """
+    try:
+        # Groq may return arguments that are not valid JSON
+        arguments = json.loads(tool_call.function.arguments)
+    except json.JSONDecodeError:
+        warnings.warn(f"Groq returned invalid JSON for tool call {tool_call.id}: {tool_call.function.arguments}")
+        return None
+
     return ToolCall(
         call_id=tool_call.id,
         tool_name=tool_call.function.name,
-        # Note that Groq may return a string that is not valid JSON here
-        # So this may raise a 500 error. Going to leave this as is to see
-        # how big of an issue this is and what we can do about it.
-        arguments=json.loads(tool_call.function.arguments),
+        arguments=arguments,
     )
 
 
@@ -220,12 +228,20 @@ async def convert_chat_completion_response_stream(
 
             # We assume Groq produces fully formed tool calls for each chunk
             tool_call = _convert_groq_tool_call(choice.delta.tool_calls[0])
+
+            # If the tool call is valid, we use it. Otherwise, we 
+            if tool_call is not None:
+                content = tool_call
+                parse_status = ToolCallParseStatus.success
+            else:
+                content = json.dumps(choice.delta.tool_calls[0])
+                parse_status = ToolCallParseStatus.failure
             yield ChatCompletionResponseStreamChunk(
                 event=ChatCompletionResponseEvent(
                     event_type=next(event_types),
                     delta=ToolCallDelta(
-                        content=tool_call,
-                        parse_status=ToolCallParseStatus.in_progress,
+                        content=content,
+                        parse_status=parse_status,
                     ),
                 )
             )
