@@ -97,9 +97,6 @@ def convert_chat_completion_request(
     Warns client if request contains unsupported features.
     """
 
-    if request.tool_prompt_format != ToolPromptFormat.json:
-        raise ValueError("groq only supports json tool_prompt_format")
-
     if request.logprobs:
         # Groq doesn't support logprobs at the time of writing
         warnings.warn("logprobs are not supported yet")
@@ -115,6 +112,9 @@ def convert_chat_completion_request(
         # repetition_penalty defaults to 1 and is often set somewhere between 1.0 and 2.0
         # so we exclude it for now
         warnings.warn("repetition_penalty is not supported")
+
+    if request.tool_prompt_format:
+        warnings.warn("tool_prompt_format is not used by Groq. Ignoring.")
 
     return CompletionCreateParams(
         model=request.model,
