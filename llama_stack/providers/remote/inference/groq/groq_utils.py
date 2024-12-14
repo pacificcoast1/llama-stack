@@ -121,7 +121,7 @@ def convert_chat_completion_request(
         # so we exclude it for now
         warnings.warn("repetition_penalty is not supported")
 
-    if request.tool_prompt_format:
+    if request.tool_prompt_format != ToolPromptFormat.json:
         warnings.warn("tool_prompt_format is not used by Groq. Ignoring.")
 
     return CompletionCreateParams(
