@@ -82,7 +82,7 @@ def _convert_groq_tool_call(tool_call: ChatCompletionMessageToolCall) -> ToolCal
         call_id=tool_call.id,
         tool_name=tool_call.function.name,
         # Note that Groq may return a string that is not valid JSON here
-        # So this may raise a 500 error. Going to leave this as is and see
+        # So this may raise a 500 error. Going to leave this as is to see
         # how big of an issue this is and what we can do about it.
         arguments=json.loads(tool_call.function.arguments),
     )
