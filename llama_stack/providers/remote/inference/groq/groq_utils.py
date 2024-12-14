@@ -214,8 +214,11 @@ async def convert_chat_completion_response_stream(
             stop_reason = _map_finish_reason_to_stop_reason(choice.finish_reason)
 
         if choice.delta.tool_calls:
+            # We assume there is only one tool call per chunk, but print out a warning in case we're wrong
+            if len(choice.delta.tool_calls) > 1:
+                warnings.warn("Groq returned multiple tool calls in one chunk. Using the first one, ignoring the rest.")
+
             # We assume Groq produces fully formed tool calls for each chunk
-            # And that there is only one tool call per chunk
             tool_call = _convert_groq_tool_call(choice.delta.tool_calls[0])
             yield ChatCompletionResponseStreamChunk(
                 event=ChatCompletionResponseEvent(
