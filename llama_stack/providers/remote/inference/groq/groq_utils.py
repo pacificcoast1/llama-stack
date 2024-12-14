@@ -39,6 +39,7 @@ from llama_stack.apis.inference import (
     ToolParamDefinition,
     ToolCallParseStatus,
     ToolCallDelta,
+    ToolPromptFormat,
 )
 
 
@@ -96,6 +97,9 @@ def convert_chat_completion_request(
     Warns client if request contains unsupported features.
     """
 
+    if request.tool_prompt_format != ToolPromptFormat.json:
+        raise ValueError("groq only supports json tool_prompt_format")
+
     if request.logprobs:
         # Groq doesn't support logprobs at the time of writing
         warnings.warn("logprobs are not supported yet")
@@ -122,8 +126,9 @@ def convert_chat_completion_request(
         temperature=request.sampling_params.temperature,
         top_p=request.sampling_params.top_p,
         tools=[_convert_groq_tool_definition(tool) for tool in request.tools or []],
+        # TODO - should I map this? The tool_choice happens to map to our type
+        tool_choice=request.tool_choice.value if request.tool_choice else None,
     )
-
 
 def _convert_message(message: Message) -> ChatCompletionMessageParam:
     if message.role == Role.system.value:
@@ -136,7 +141,6 @@ def _convert_message(message: Message) -> ChatCompletionMessageParam:
         )
     else:
         raise ValueError(f"Invalid message role: {message.role}")
-
 
 def convert_chat_completion_response(
     response: ChatCompletion,

@@ -116,7 +116,7 @@ class GroqInferenceAdapter(Inference, ModelRegistryHelper):
 
         request = convert_chat_completion_request(
             request=ChatCompletionRequest(
-                model=model_id,
+                model=model_id, 
                 messages=messages,
                 sampling_params=sampling_params,
                 response_format=response_format,
