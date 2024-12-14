@@ -206,27 +206,27 @@ async def convert_chat_completion_response_stream(
         if choice.finish_reason:
             stop_reason = _map_finish_reason_to_stop_reason(choice.finish_reason)
 
-            if choice.delta.tool_calls:
-                tool_call = _convert_groq_tool_call(
-                    choice.delta.tool_calls[0]
+        if choice.delta.tool_calls:
+            tool_call = _convert_groq_tool_call(
+                choice.delta.tool_calls[0]
+            )
+            yield ChatCompletionResponseStreamChunk(
+                event=ChatCompletionResponseEvent(
+                    event_type=next(event_types),
+                    delta=ToolCallDelta(
+                        content=tool_call,
+                        parse_status=ToolCallParseStatus.in_progress,
+                    ),
                 )
-                yield ChatCompletionResponseStreamChunk(
-                    event=ChatCompletionResponseEvent(
-                        event_type=next(event_types),
-                        delta=ToolCallDelta(
-                            content=tool_call,
-                            parse_status=ToolCallParseStatus.in_progress,
-                        ),
-                    )
+            )
+        else:
+            yield ChatCompletionResponseStreamChunk(
+                event=ChatCompletionResponseEvent(
+                    event_type=next(event_types),
+                    delta=choice.delta.content or "",
+                    logprobs=None,
                 )
-            else:
-                yield ChatCompletionResponseStreamChunk(
-                    event=ChatCompletionResponseEvent(
-                        event_type=next(event_types),
-                        delta=choice.delta.content or "",
-                        logprobs=None,
-                    )
-                )
+            )
 
     yield ChatCompletionResponseStreamChunk(
         event=ChatCompletionResponseEvent(
