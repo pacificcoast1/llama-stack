@@ -37,6 +37,8 @@ from llama_stack.apis.inference import (
     ToolCall,
     ToolDefinition,
     ToolParamDefinition,
+    ToolCallParseStatus,
+    ToolCallDelta,
 )
 
 
@@ -136,14 +138,28 @@ def _convert_message(message: Message) -> ChatCompletionMessageParam:
 def convert_chat_completion_response(
     response: ChatCompletion,
 ) -> ChatCompletionResponse:
-    # groq only supports n=1 at time of writing, so there is only one choice
-    choice = response.choices[0]
-    return ChatCompletionResponse(
-        completion_message=CompletionMessage(
-            content=choice.message.content,
-            stop_reason=_map_finish_reason_to_stop_reason(choice.finish_reason),
-        ),
-    )
+    if response.choices[0].finish_reason == "tool_calls":
+        tool_call = response.choices[0].message.tool_calls[0]
+        # Only expect one tool call at a time
+        tool_call = _convert_groq_tool_call(tool_call)
+        return ChatCompletionResponse(
+            completion_message=CompletionMessage(
+                tool_calls=[tool_call],
+                stop_reason=StopReason.end_of_message,
+                # Content is not optional
+                content="",
+            ),
+            logprobs=None,
+        )
+    else:
+        # groq only supports n=1 at time of writing, so there is only one choice
+        choice = response.choices[0]
+        return ChatCompletionResponse(
+            completion_message=CompletionMessage(
+                content=choice.message.content,
+                stop_reason=_map_finish_reason_to_stop_reason(choice.finish_reason),
+            ),
+        )
 
 
 def _map_finish_reason_to_stop_reason(
@@ -189,13 +205,27 @@ async def convert_chat_completion_response_stream(
         if choice.finish_reason:
             stop_reason = _map_finish_reason_to_stop_reason(choice.finish_reason)
 
-        yield ChatCompletionResponseStreamChunk(
-            event=ChatCompletionResponseEvent(
-                event_type=next(event_types),
-                delta=choice.delta.content or "",
-                logprobs=None,
-            )
-        )
+            if choice.delta.tool_calls:
+                tool_call = _convert_groq_tool_call(
+                    choice.delta.tool_calls[0]
+                )
+                yield ChatCompletionResponseStreamChunk(
+                    event=ChatCompletionResponseEvent(
+                        event_type=next(event_types),
+                        delta=ToolCallDelta(
+                            content=tool_call,
+                            parse_status=ToolCallParseStatus.in_progress,
+                        ),
+                    )
+                )
+            else:
+                yield ChatCompletionResponseStreamChunk(
+                    event=ChatCompletionResponseEvent(
+                        event_type=next(event_types),
+                        delta=choice.delta.content or "",
+                        logprobs=None,
+                    )
+                )
 
     yield ChatCompletionResponseStreamChunk(
         event=ChatCompletionResponseEvent(
