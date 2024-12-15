@@ -62,7 +62,19 @@ metadata_store:
   db_path: ${env.SQLITE_STORE_DIR:~/.llama/distributions/groq}/registry.db
 models:
 - metadata: {}
-  model_id: ${env.INFERENCE_MODEL}
+  model_id: Llama3.1-8B-Instruct
+  provider_id: groq
+  provider_model_id: null
+- metadata: {}
+  model_id: llama-3.1-8b-instant
+  provider_id: groq
+  provider_model_id: null
+- metadata: {}
+  model_id: Llama-3-70B-Instruct
+  provider_id: groq
+  provider_model_id: null
+- metadata: {}
+  model_id: Llama3.3-70B-Instruct
   provider_id: groq
   provider_model_id: null
 shields: []
