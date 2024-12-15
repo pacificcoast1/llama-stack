@@ -135,7 +135,7 @@ async def process_completion_stream_response(
 
 
 async def process_chat_completion_stream_response(
-    stream: AsyncGenerator[OpenAICompatCompletionResponse, None], formatter: ChatFormat, code_interpreter: bool = False
+    stream: AsyncGenerator[OpenAICompatCompletionResponse, None], formatter: ChatFormat, enabled_tools: List[str]
 ) -> AsyncGenerator:
     yield ChatCompletionResponseStreamChunk(
         event=ChatCompletionResponseEvent(
@@ -216,8 +216,6 @@ async def process_chat_completion_stream_response(
 
     # parse tool calls and report errors
     message = formatter.decode_assistant_message_from_content(buffer, stop_reason)
-    # print()
-    # print("process_chat_completion_stream_response", message)
     parsed_tool_calls = len(message.tool_calls) > 0
     if ipython and not parsed_tool_calls:
         yield ChatCompletionResponseStreamChunk(
@@ -232,7 +230,7 @@ async def process_chat_completion_stream_response(
         )
 
     for tool_call in message.tool_calls:
-        if code_interpreter and tool_call.name == "code_interpreter":
+        if tool_call.name in enabled_tools:
             yield ChatCompletionResponseStreamChunk(
                 event=ChatCompletionResponseEvent(
                     event_type=ChatCompletionResponseEventType.progress,
