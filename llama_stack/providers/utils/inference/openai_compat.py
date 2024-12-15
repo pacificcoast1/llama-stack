@@ -135,7 +135,7 @@ async def process_completion_stream_response(
 
 
 async def process_chat_completion_stream_response(
-    stream: AsyncGenerator[OpenAICompatCompletionResponse, None], formatter: ChatFormat
+    stream: AsyncGenerator[OpenAICompatCompletionResponse, None], formatter: ChatFormat, code_interpreter: bool = False
 ) -> AsyncGenerator:
     yield ChatCompletionResponseStreamChunk(
         event=ChatCompletionResponseEvent(
@@ -148,8 +148,10 @@ async def process_chat_completion_stream_response(
     ipython = False
     stop_reason = None
 
+    print()
     async for chunk in stream:
         choice = chunk.choices[0]
+        print(choice.text, end="")
         finish_reason = choice.finish_reason
 
         if finish_reason:
@@ -214,6 +216,8 @@ async def process_chat_completion_stream_response(
 
     # parse tool calls and report errors
     message = formatter.decode_assistant_message_from_content(buffer, stop_reason)
+    # print()
+    # print("process_chat_completion_stream_response", message)
     parsed_tool_calls = len(message.tool_calls) > 0
     if ipython and not parsed_tool_calls:
         yield ChatCompletionResponseStreamChunk(
@@ -228,16 +232,17 @@ async def process_chat_completion_stream_response(
         )
 
     for tool_call in message.tool_calls:
-        yield ChatCompletionResponseStreamChunk(
-            event=ChatCompletionResponseEvent(
-                event_type=ChatCompletionResponseEventType.progress,
-                delta=ToolCallDelta(
-                    content=tool_call,
-                    parse_status=ToolCallParseStatus.success,
-                ),
-                stop_reason=stop_reason,
+        if code_interpreter and tool_call.name == "code_interpreter":
+            yield ChatCompletionResponseStreamChunk(
+                event=ChatCompletionResponseEvent(
+                    event_type=ChatCompletionResponseEventType.progress,
+                    delta=ToolCallDelta(
+                        content=tool_call,
+                        parse_status=ToolCallParseStatus.success,
+                    ),
+                    stop_reason=stop_reason,
+                )
             )
-        )
 
     yield ChatCompletionResponseStreamChunk(
         event=ChatCompletionResponseEvent(
