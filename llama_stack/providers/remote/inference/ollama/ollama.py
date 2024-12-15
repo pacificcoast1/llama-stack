@@ -348,6 +348,7 @@ class OllamaInferenceAdapter(Inference, ModelsProtocolPrivate):
             return model
         model = await self.register_helper.register_model(model)
         models = await self.client.ps()
+        print("Ollama models", models)
         available_models = [m["model"] for m in models["models"]]
         if model.provider_resource_id not in available_models:
             raise ValueError(
