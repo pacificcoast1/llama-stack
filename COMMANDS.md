@@ -11,4 +11,6 @@ pip install -e . \
   --port 5001
 
 pytest llama_stack/providers/tests/inference/test_text_inference.py -v -k groq --lf -s
+
+trash .git/hooks/pre-commit
 ```
