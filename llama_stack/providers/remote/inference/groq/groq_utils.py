@@ -102,6 +102,7 @@ def _convert_message(message: Message) -> ChatCompletionMessageParam:
 
 
 def _convert_groq_tool_definition(tool_definition: ToolDefinition) -> dict:
+    print(tool_definition)
     # Groq requires a description for function tools
     if tool_definition.description is None:
         raise AssertionError("tool_definition.description is required")
