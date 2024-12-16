@@ -135,8 +135,23 @@ async def process_completion_stream_response(
 
 
 async def process_chat_completion_stream_response(
-    stream: AsyncGenerator[OpenAICompatCompletionResponse, None], formatter: ChatFormat, enabled_tools: List[str]
+    stream: AsyncGenerator[OpenAICompatCompletionResponse, None], formatter: ChatFormat, enabled_tools: List[Union[BuiltinTool, str]]
 ) -> AsyncGenerator:
+    """
+    Process an openai compatible chat completion stream response and yield the appropriate events.
+
+    # Option #1
+    Note if it's a tool call, it may emit in_progress events before the final tool call is complete.
+    But it will emit a final tool_call event with the full tool call.
+    However if the tool call is not enabled, it will not emit the final tool call.
+
+    # Option #2
+    Handle above this function.
+    Wrap this in a tool call parser that will only emit the final tool call if it's enabled.
+
+    # Option #3
+    Emit a tool_call parsed event failure if the tool call is not enabled.
+    """
     yield ChatCompletionResponseStreamChunk(
         event=ChatCompletionResponseEvent(
             event_type=ChatCompletionResponseEventType.start,
@@ -228,9 +243,22 @@ async def process_chat_completion_stream_response(
                 stop_reason=stop_reason,
             )
         )
-
-    for tool_call in message.tool_calls:
-        if tool_call.name in enabled_tools:
+    
+    tool_call_enabled = any(tool.tool_name in enabled_tools for tool in message.tool_calls)
+    if not tool_call_enabled:
+        # If the tool call is not enabled, emit a failure event.
+        yield ChatCompletionResponseStreamChunk(
+            event=ChatCompletionResponseEvent(
+                event_type=ChatCompletionResponseEventType.progress,
+                delta=ToolCallDelta(
+                    content="",
+                    parse_status=ToolCallParseStatus.failure,
+                ),
+                stop_reason=stop_reason,
+            )
+        )
+    else:
+        for tool_call in message.tool_calls:
             yield ChatCompletionResponseStreamChunk(
                 event=ChatCompletionResponseEvent(
                     event_type=ChatCompletionResponseEventType.progress,

@@ -313,9 +313,9 @@ class OllamaInferenceAdapter(Inference, ModelsProtocolPrivate):
                 )
 
         stream = _generate_and_convert_to_openai_compat()
-        code_interpreter_enabled = any(tool.tool_name == "code_interpreter" for tool in request.tools)
+        enabled_tools = [tool.tool_name for tool in request.tools]
         async for chunk in process_chat_completion_stream_response(
-            stream, self.formatter, code_interpreter_enabled
+            stream, self.formatter, enabled_tools
         ):
             yield chunk
 
